@@ -131,9 +131,9 @@ export default {
     })
   },
   mounted() {
-    // if (!getBaseUrl() && !getToken()) window.location.replace("/get-url");
-    // else if (!getToken()) window.location.replace("/login");
-    // this.loadCompany();
+    if (!getBaseUrl() && !getToken()) window.location.replace("/get-url");
+    else if (!getToken()) window.location.replace("/login");
+    this.loadCompany();
   }
 };
 </script>
