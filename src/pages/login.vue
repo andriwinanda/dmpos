@@ -24,25 +24,29 @@
     <f7-block>
       <f7-row>
         <f7-col>
-          <f7-button fill color="orange" @click.prevent="reset()">Reset</f7-button>
+          <f7-button fill color="orange" @click.prevent="reset()"
+            >Reset</f7-button
+          >
         </f7-col>
         <f7-col>
-          <f7-button fill color="primary" @click.prevent="login()">{{$t('login.label')}}</f7-button>
+          <f7-button fill color="primary" @click.prevent="login()">{{
+            $t("login.label")
+          }}</f7-button>
         </f7-col>
       </f7-row>
     </f7-block>
     <!-- Language -->
-    <f7-block>{{ $t('setting.langLabel') }}</f7-block>
+    <f7-block>{{ $t("setting.langLabel") }}</f7-block>
     <f7-block>
       <f7-row>
         <f7-col v-for="entry in languages" :key="entry.title">
           <f7-button
             fill
-            :color="lang === entry.language?'primary': 'gray'"
+            :color="lang === entry.language ? 'primary' : 'gray'"
             @click="changeLocale(entry.language)"
           >
             <span :iso="entry.flag" v-bind:squared="false" />
-            {{entry.title}}
+            {{ entry.title }}
           </f7-button>
         </f7-col>
       </f7-row>
@@ -62,33 +66,33 @@ export default {
       password: "",
       languages: [
         { flag: "us", language: "en", title: "English" },
-        { flag: "id", language: "id", title: "Bahasa Indonesia" }
-      ]
+        { flag: "id", language: "id", title: "Bahasa Indonesia" },
+      ],
     };
   },
   methods: {
     login() {
       let userLogin = {
         user: this.username,
-        pass: this.password
+        pass: this.password,
       };
       this.$f7.dialog.preloader();
       myaxios
         .post(getBaseUrl() + "/login", userLogin)
-        .then(res => {
+        .then((res) => {
           this.$f7.dialog.close();
           let token = res.data.token;
-          let log = res.data.log
+          let log = res.data.log;
           this.axios
             .get(getBaseUrl() + "/login/decode_token", {
               headers: {
-                "X-Auth-Token": token
-              }
+                "X-Auth-Token": token,
+              },
             })
-            .then(res => {
+            .then((res) => {
               let dataLogin = {
                 token: token,
-                dataUser: res.data.content
+                dataUser: res.data.content,
               };
               this.$store.dispatch("login/login", dataLogin);
               this.$f7.toast
@@ -96,25 +100,15 @@ export default {
                   text: "Login Success",
                   position: "bottom",
                   closeTimeout: 2000,
-                  destroyOnClose: true
+                  destroyOnClose: true,
                 })
                 .open();
               this.$f7router.navigate("/");
               this.axios.defaults.headers.common["X-Auth-Token"] = token;
               this.axios.defaults.baseURL = getBaseUrl();
-              // this.axios
-              //   .get("/main")
-              //   .then(res => {
-              //     this.isLoading = false;
-              //     let data = res.data.content;
-              //     this.$store.dispatch("login/setCompanyName", data.com_name);
-              //   })
-              //   .catch(error => {
-              //     console.log(error);
-              //   });
             });
         })
-        .catch(error => {
+        .catch((error) => {
           this.$f7.dialog.close();
           if (!error.response || error.response.status === 500) {
             this.$f7.dialog.alert(
@@ -139,7 +133,7 @@ export default {
         this.$f7.views.main.router.navigate("/get-url");
         this.$f7.dialog.close();
       });
-    }
+    },
   },
   mounted() {
     if (!getBaseUrl()) window.location.replace("/get-url");
@@ -147,11 +141,11 @@ export default {
   },
   computed: {
     ...mapState({
-      lang: state => state.login.lang,
-      hasBaseUrl: state => state.login.hasBaseUrl,
-      isLoggedIn: state => state.login.isLoggedIn
-    })
-  }
+      lang: (state) => state.login.lang,
+      hasBaseUrl: (state) => state.login.hasBaseUrl,
+      isLoggedIn: (state) => state.login.isLoggedIn,
+    }),
+  },
 };
 </script>
 </style>
