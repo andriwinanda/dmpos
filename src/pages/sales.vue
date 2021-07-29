@@ -565,16 +565,20 @@ export default {
     }),
     bagCount() {
       let total = 0;
-      this.bag.map((el) => {
-        total += parseInt(el.qty);
-      });
+      if (this.bag.length) {
+        this.bag.map((el) => {
+          total += parseInt(el.qty);
+        });
+      }
       return total;
     },
     totalPrice() {
       let total = 0;
-      this.bag.map((el) => {
-        total += el.totalPrice;
-      });
+      if (this.bag.length) {
+        this.bag.map((el) => {
+          total += el.totalPrice;
+        });
+      }
       return total;
     },
   },

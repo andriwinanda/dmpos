@@ -63,16 +63,16 @@ export function removeDataUser() {
 }
 // BAG
 
-export function addToBag(item) {
-  localStorage.setItem(BAG_KEY, item)
+export function addToBag(user,item) {
+  localStorage.setItem(user, item)
 }
 
-export function getBag() {
-  return JSON.parse(localStorage.getItem(BAG_KEY))
+export function getBag(user) {
+  return JSON.parse(localStorage.getItem(user))
 }
 
-export function removeBag() {
-  localStorage.removeItem(BAG_KEY)
+export function removeBag(user) {
+  localStorage.removeItem(user)
 }
  
 // Dark Mode

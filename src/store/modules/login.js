@@ -18,10 +18,12 @@ const state = {
   darkMode: getDarkMode() || false,
   dataUser: getDataUser() || null,
   company: getCompany() || null,
-  bag: getBag() || [],
+  bag: [],
   lang: localStorage.getItem("lang") || 'en'
 
 }
+if(state.dataUser) state.bag = getBag(state.dataUser.userid)
+
 
 const mutations = {
   [LOGIN](state) {
@@ -64,13 +66,13 @@ const mutations = {
       state.bag.push(item)
     }
     // let data = [{ "id":"770","sku": "CMH08-GLD", "name": "roller type r (roda 4 s80)", "currency": "IDR", "min": 1, "stock": 5, "qty": 5, "price": 0, "totalPrice": 0 }, {  "id":"771","sku": "KRT07-DI", "name": "door bumper (stoper handle)", "currency": "IDR", "min": "2", "stock": 100, "qty": 13, "price": 15000, "totalPrice": 195000 }, {  "id":"236","sku": "CW5012-TW", "name": "TULANG SUDUT 135", "currency": "", "min": 1, "stock": 18, "qty": 9, "price": 0, "totalPrice": 0 }]
-    addToBag(JSON.stringify(state.bag))
+    addToBag(state.dataUser.userid, JSON.stringify(state.bag))
 
   },
   resetbag(state) {
 
     state.bag = []
-    addToBag(JSON.stringify(state.bag))
+    addToBag(state.dataUser.userid, JSON.stringify(state.bag))
 
   },
   changeLang(state, lang) {
@@ -94,6 +96,7 @@ const actions = {
     removeDarkMode()
     commit(RESET)
     delete axios.defaults.headers['X-Auth-Token']
+    localStorage.clear()
 
   },
   login({ commit, state }, DATA_LOGIN) {
