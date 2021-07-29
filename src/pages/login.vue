@@ -78,6 +78,7 @@ export default {
         .then(res => {
           this.$f7.dialog.close();
           let token = res.data.token;
+          let log = res.data.log
           this.axios
             .get(getBaseUrl() + "/login/decode_token", {
               headers: {

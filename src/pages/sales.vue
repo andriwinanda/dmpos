@@ -181,7 +181,9 @@
           <f7-row>
             <f7-col>
               <!-- <f7-button large outline :disabled="!bagTemp.item.qty">Checkout</f7-button> -->
-              <f7-button large outline @click="pay('now')">Checkout</f7-button>
+              <f7-button large outline @click="choosePayment('now')"
+                >Checkout</f7-button
+              >
             </f7-col>
             <f7-col>
               <!-- <f7-button large fill :disabled="!bagTemp.item.qty" @click="addToBag()">Add To Bag</f7-button> -->
@@ -226,7 +228,9 @@
             </div>
           </div>
           <div class="padding-horizontal padding-bottom">
-            <f7-button large fill @click="pay()">Make Payment</f7-button>
+            <f7-button large fill @click="choosePayment('bag')"
+              >Make Payment</f7-button
+            >
             <div class="margin-top text-align-center">
               Swipe up for more details
             </div>
@@ -298,6 +302,7 @@ export default {
       productRecord: 0,
       beforeAddSheet: false,
       bagSheet: false,
+      paymentList: [],
       productList: [],
       productFilter: {
         city: "",
@@ -312,6 +317,12 @@ export default {
     };
   },
   methods: {
+    // Load Payment
+    loadPayment() {
+      this.axios.get("/payment").then((res) => {
+        this.paymentList = res.data.content.result;
+      });
+    },
     loadProduct() {
       this.showPreloader = true;
       let data = {
@@ -404,7 +415,7 @@ export default {
         id: this.bagTemp.item.id,
         sku: this.bagTemp.item.sku,
         name: this.bagTemp.item.name,
-        tax: this.bagTemp.item.tax,
+        tax: this.bagTemp.item.tax || 0,
         currency: this.bagTemp.item.currency,
         min: this.bagTemp.item.min ? this.bagTemp.item.min : 1,
         // stock: (this.bagTemp.item.qty),
@@ -481,32 +492,61 @@ export default {
       this.$f7.dialog.alert(result);
       //   console.log(result);
     },
+    choosePayment(nowOrBag) {
+      let action = [
+        {
+          text: "Choose Payment",
+          label: true,
+        },
+      ];
+      this.paymentList.map((el) => {
+        let buttonItem = {};
+        buttonItem.text = el.name;
+        buttonItem.onClick = () => {
+          this.pay(el.id, nowOrBag);
+        };
+        action.push(buttonItem);
+      });
+      let cancelButton = {
+        text: "Cancel",
+        color: "red",
+      };
+      action.push(cancelButton);
 
-    pay(val) {
-      let data;
+      let payment = this.$f7.actions.create({
+        buttons: action,
+      });
+      // Open
+      payment.open();
+    },
+    pay(id, val) {
+      let data = {};
+      data.orderid = "";
+      data.log = this.log;
+      data.payment = id;
       if (val == "now") {
-        data = {
-          id: this.bagTemp.item.id,
-          sku: this.bagTemp.item.sku,
-          name: this.bagTemp.item.name,
-          tax: this.bagTemp.item.tax,
-          currency: this.bagTemp.item.currency,
-          min: this.bagTemp.item.min ? this.bagTemp.item.min : 1,
-          // stock: (this.bagTemp.item.qty),
-          qty: parseInt(this.bagTemp.qty),
-          price: this.bagTemp.item.price,
-          totalPrice: this.bagTemp.item.price * this.bagTemp.qty,
-        };
-      } else{
-        data = {
-          items: this.bag,
-        };
+        data.items = [
+          {
+            id: this.bagTemp.item.id,
+            sku: this.bagTemp.item.sku,
+            name: this.bagTemp.item.name,
+            tax: this.bagTemp.item.tax || 0,
+            currency: this.bagTemp.item.currency,
+            min: this.bagTemp.item.min ? this.bagTemp.item.min : 1,
+            // stock: (this.bagTemp.item.qty),
+            qty: parseInt(this.bagTemp.qty),
+            price: this.bagTemp.item.price,
+            totalPrice: this.bagTemp.item.price * this.bagTemp.qty,
+          },
+        ];
+      } else {
+        data.items = this.bag;
       }
       this.$f7.dialog.preloader();
       this.axios
         .post("/pos/add_multiple", data)
         .then((res) => {
-          if(val == "now") this.$store.commit("login/resetbag");
+          if (val != "now") this.$store.commit("login/resetbag");
           this.$f7.dialog.close();
           this.$f7.dialog.alert("Payment success", "Success");
           this.beforeAddSheet = false;
@@ -521,6 +561,7 @@ export default {
   computed: {
     ...mapState({
       bag: (state) => state.login.bag,
+      log: (state) => state.login.dataUser.log,
     }),
     bagCount() {
       let total = 0;
@@ -540,6 +581,7 @@ export default {
   created() {
     this.productList = [];
     this.loadProduct();
+    this.loadPayment();
   },
 };
 </script>
