@@ -565,16 +565,16 @@ export default {
     }),
     bagCount() {
       let total = 0;
-      if (this.bag.length) {
+      if (this.bag) {
         this.bag.map((el) => {
           total += parseInt(el.qty);
         });
       }
-      return total;
+      return total ;
     },
     totalPrice() {
       let total = 0;
-      if (this.bag.length) {
+      if (this.bag) {
         this.bag.map((el) => {
           total += el.totalPrice;
         });

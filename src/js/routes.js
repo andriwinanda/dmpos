@@ -16,6 +16,7 @@ import Login from '../pages/login.vue';
 import GetUrl from '../pages/get-url.vue';
 import Contact from '../pages/contact.vue';
 import Product from '../pages/product.vue';
+import Transaction from '../pages/transaction.vue';
 import ProductDetail from '../pages/product-detail.vue';
 import Sales from '../pages/sales.vue';
 import Payment from '../pages/payment.vue';
@@ -66,6 +67,10 @@ var routes = [
   {
     path: '/product',
     component: Product
+  },
+  {
+    path: '/transaction',
+    component: Transaction
   },
   {
     path: '/product-detail',
