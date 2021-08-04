@@ -1,8 +1,6 @@
 <template>
   <div>
-    <f7-navbar back-link no-hairline no-shadow title="Transaction">
-
-    </f7-navbar>
+    <f7-navbar back-link transparent no-hairline no-shadow :title="$t('transaction.label')"> </f7-navbar>
 
     <f7-page
       infinite
@@ -58,11 +56,31 @@
       @popup:closed="popupOpened = false"
     >
     </f7-popup>
+
+    <!-- Filter -->
+    <f7-fab-backdrop slot="fixed"></f7-fab-backdrop>
+    <f7-fab position="right-bottom" slot="fixed" color="primary">
+      <f7-icon f7="calendar"></f7-icon>
+      <f7-icon f7="multiply"></f7-icon>
+      <f7-fab-buttons position="top">
+        <f7-fab-button label="Filter" @click="filterCalendar.open()">
+          <f7-icon f7="calendar"></f7-icon>
+        </f7-fab-button>
+        <f7-fab-button
+          label="Reset"
+          v-if="transactionFilter.date"
+          @click="resetFilter()"
+        >
+          <f7-icon f7="multiply"></f7-icon>
+        </f7-fab-button>
+      </f7-fab-buttons>
+    </f7-fab>
   </div>
 </template>
 <script>
 import { capitalizeLetter } from "../js/function-helper";
 import debounce from "debounce";
+import moment from "moment";
 
 const limit = 10;
 
@@ -74,12 +92,24 @@ export default {
       transactionRecord: 0,
       transactionList: [],
       transactionFilter: {
-        city: "",
+        date: "",
+        payment: "",
+        user: "",
       },
       search: "",
       edit: {},
       popupOpened: false,
       dataBind: {},
+      filterCalendar: this.$f7.calendar.create({
+        closeOnSelect: true,
+        url: "/transaction",
+        dateFormat: "yyyy-mm-dd",
+        on: {
+          change: (calendar) => {
+            this.filter(calendar);
+          },
+        },
+      }),
     };
   },
   methods: {
@@ -88,9 +118,12 @@ export default {
       let data = {
         limit: limit,
         offset: this.transactionOffset,
+        date: this.transactionFilter.date,
+        payment: this.transactionFilter.payment,
+        user: this.transactionFilter.user,
       };
       this.axios
-        .post("pos")
+        .post("pos", data)
         .then((res) => {
           let data = res.data.content;
           if (data.result) {
@@ -125,16 +158,35 @@ export default {
       this.loadTransaction();
     },
     detailTransaction(id) {
-    //   this.showPreloader = true;
-    //   this.axios
-    //     .post(`pos/get_trans/${id}`)
-    //     .then((res) => {
-    //       console.log(res);
-    //       this.showPreloader = false;
-    //     })
-    //     .catch((err) => {
-    //       this.showPreloader = false;
-    //     });
+      //   this.showPreloader = true;
+      //   this.axios
+      //     .post(`pos/get_trans/${id}`)
+      //     .then((res) => {
+      //       console.log(res);
+      //       this.showPreloader = false;
+      //     })
+      //     .catch((err) => {
+      //       this.showPreloader = false;
+      //     });
+    },
+    dateFormat(value) {
+      return moment(value).format("YYYY-MM-DD");
+    },
+
+    filter(e) {
+      this.transactionList = [];
+      this.transactionRecord = 0;
+      this.transactionOffset = 0;
+      this.transactionFilter.date = "";
+      this.transactionFilter.date = this.dateFormat(e.value[0]);
+      this.loadTransaction();
+    },
+    resetFilter() {
+      this.transactionList = [];
+      this.transactionRecord = 0;
+      this.transactionOffset = 0;
+      this.transactionFilter.date = "";
+      this.loadTransaction();
     },
   },
   created() {

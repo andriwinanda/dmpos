@@ -22,7 +22,7 @@ const state = {
   lang: localStorage.getItem("lang") || 'en'
 
 }
-if(getBag(state.dataUser.userid)) state.bag = getBag(state.dataUser.userid) || []
+if(state.isLoggedIn && getBag(state.dataUser)) state.bag = getBag(state.dataUser.userid) || []
 
 
 const mutations = {

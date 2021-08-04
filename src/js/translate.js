@@ -78,6 +78,9 @@ const messages = {
         contact: {
             label: 'Contact'
         },
+        transaction: {
+            label: 'Transaction'
+        },
         product:{
             label: 'Product',
             weight: 'Weight',
@@ -172,6 +175,9 @@ const messages = {
         },
         contact: {
             label: 'Kontak'
+        },
+        transaction: {
+            label: 'Transaksi'
         },
         product:{
             label: 'Produk',
