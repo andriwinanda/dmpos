@@ -1,6 +1,13 @@
 <template>
   <div>
-    <f7-navbar back-link transparent no-hairline no-shadow :title="$t('transaction.label')"> </f7-navbar>
+    <f7-navbar
+      back-link
+      transparent
+      no-hairline
+      no-shadow
+      :title="$t('transaction.label')"
+    >
+    </f7-navbar>
 
     <f7-page
       infinite
@@ -60,21 +67,61 @@
     <!-- Filter -->
     <f7-fab-backdrop slot="fixed"></f7-fab-backdrop>
     <f7-fab position="right-bottom" slot="fixed" color="primary">
-      <f7-icon f7="calendar"></f7-icon>
+      <f7-icon f7="search"></f7-icon>
       <f7-icon f7="multiply"></f7-icon>
       <f7-fab-buttons position="top">
-        <f7-fab-button label="Filter" @click="filterCalendar.open()">
+        <f7-fab-button
+          :label="$t('general.payment')"
+          fab-close
+          @click="transactionPaymentSheet = true"
+        >
+          <f7-icon f7="creditcard"></f7-icon>
+        </f7-fab-button>
+
+        <f7-fab-button label="Date" @click="filterCalendar.open()">
           <f7-icon f7="calendar"></f7-icon>
         </f7-fab-button>
         <f7-fab-button
           label="Reset"
-          v-if="transactionFilter.date"
+          v-if="transactionFilter.date || transactionFilter.payment"
           @click="resetFilter()"
         >
           <f7-icon f7="multiply"></f7-icon>
         </f7-fab-button>
       </f7-fab-buttons>
     </f7-fab>
+
+    <!-- Filter Payment -->
+    <f7-sheet
+      :opened="transactionPaymentSheet"
+      @sheet:closed="transactionPaymentSheet = false"
+    >
+      <f7-toolbar>
+        <div class="left"></div>
+        <div class="right">
+          <f7-link sheet-close>{{ $t("general.close") }}</f7-link>
+        </div>
+      </f7-toolbar>
+      <!-- Scrollable sheet content -->
+      <f7-page-content>
+        <f7-list>
+          <f7-list-item
+            v-for="(item, i) in paymentList"
+            :key="i"
+            radio
+            radio-icon="end"
+            :title="item.name"
+            name="demo-radio-end"
+            v-model="transactionFilter.payment"
+            @change="
+              (e) => {
+                if (e.target.checked) filterPayment(item.id);
+              }
+            "
+          ></f7-list-item>
+        </f7-list>
+      </f7-page-content>
+    </f7-sheet>
   </div>
 </template>
 <script>
@@ -88,6 +135,7 @@ export default {
   data() {
     return {
       showPreloader: true,
+      transactionPaymentSheet: false,
       transactionOffset: 0,
       transactionRecord: 0,
       transactionList: [],
@@ -97,6 +145,7 @@ export default {
         user: "",
       },
       search: "",
+      paymentList : [],
       edit: {},
       popupOpened: false,
       dataBind: {},
@@ -106,7 +155,7 @@ export default {
         dateFormat: "yyyy-mm-dd",
         on: {
           change: (calendar) => {
-            this.filter(calendar);
+            this.filterDate(calendar);
           },
         },
       }),
@@ -120,7 +169,7 @@ export default {
         offset: this.transactionOffset,
         date: this.transactionFilter.date,
         payment: this.transactionFilter.payment,
-        user: this.transactionFilter.user,
+        user: this.$store.state.login.dataUser.userid,
       };
       this.axios
         .post("pos", data)
@@ -169,11 +218,23 @@ export default {
       //       this.showPreloader = false;
       //     });
     },
+    loadPayment() {
+      this.isLoading = true;
+        this.axios
+        .get("payment").then(res => {
+         this.paymentList = res.data.content.result
+          this.isLoading = false;
+        })
+        .catch(err => {
+          this.isLoading = false;
+        });
+    },
+
     dateFormat(value) {
       return moment(value).format("YYYY-MM-DD");
     },
 
-    filter(e) {
+    filterDate(e) {
       this.transactionList = [];
       this.transactionRecord = 0;
       this.transactionOffset = 0;
@@ -181,17 +242,27 @@ export default {
       this.transactionFilter.date = this.dateFormat(e.value[0]);
       this.loadTransaction();
     },
+    filterPayment(e) {
+      this.transactionList = [];
+      this.transactionRecord = 0;
+      this.transactionOffset = 0;
+      this.transactionFilter.payment = e
+      this.loadTransaction()
+      this.transactionPaymentSheet = false
+    },
     resetFilter() {
       this.transactionList = [];
       this.transactionRecord = 0;
       this.transactionOffset = 0;
       this.transactionFilter.date = "";
+      this.transactionFilter.payment = "";
       this.loadTransaction();
     },
   },
   created() {
     this.transactionList = [];
     this.loadTransaction();
+    this.loadPayment();
   },
 };
 </script>
