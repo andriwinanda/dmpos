@@ -37,7 +37,8 @@
         >
           <div class="card-content card-content-padding">
             <p class="no-margin">
-              <small>{{ item.time }}</small>
+              <small>{{ moment(item.date).format('dddd, D MMM YYYY')}}</small> 
+              <small>{{item.time.replace((/-/g), ":")}}</small>
             </p>
             <!-- <hr class="dotted" /> -->
             <table>
@@ -177,7 +178,10 @@ export default {
           let data = res.data.content;
           if (data.result) {
             data.result.map((el) => {
-              this.transactionList.push(el);
+              let data = {}
+              data = el
+              data.date = new Date(el.date)
+              this.transactionList.push(data);
             });
           } else this.transactionList = [];
           this.transactionRecord = data.record;
