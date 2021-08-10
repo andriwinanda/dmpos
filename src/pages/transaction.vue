@@ -37,8 +37,9 @@
         >
           <div class="card-content card-content-padding">
             <p class="no-margin">
-              <small>{{ moment(item.date).format('dddd, D MMM YYYY')}}</small> 
-              <small>{{item.time.replace((/-/g), ":")}}</small>
+              <small>{{ moment(item.date).format("dddd, D MMM YYYY") }}</small>
+              <small>{{ item.time.replace(/-/g, ":") }}</small>
+              <small class="float-right text-color-gray">{{item.payment}}</small>
             </p>
             <!-- <hr class="dotted" /> -->
             <table>
@@ -47,10 +48,11 @@
               </tr>
             </table>
             <p class="no-margin">
-              <span>#{{ item.orderid }}</span>
-              <strong class="float-right">
-                Rp<numeric :value="item.total" />
-              </strong>
+              <span>#{{ item.orderid }} </span>
+              <span class="float-right">
+                Rp
+                <strong> <numeric :value="item.total" /> </strong>
+              </span>
             </p>
           </div>
         </div>
@@ -146,7 +148,7 @@ export default {
         user: "",
       },
       search: "",
-      paymentList : [],
+      paymentList: [],
       edit: {},
       popupOpened: false,
       dataBind: {},
@@ -178,9 +180,9 @@ export default {
           let data = res.data.content;
           if (data.result) {
             data.result.map((el) => {
-              let data = {}
-              data = el
-              data.date = new Date(el.date)
+              let data = {};
+              data = el;
+              data.date = new Date(el.date);
               this.transactionList.push(data);
             });
           } else this.transactionList = [];
@@ -224,12 +226,13 @@ export default {
     },
     loadPayment() {
       this.isLoading = true;
-        this.axios
-        .get("payment").then(res => {
-         this.paymentList = res.data.content.result
+      this.axios
+        .get("payment")
+        .then((res) => {
+          this.paymentList = res.data.content.result;
           this.isLoading = false;
         })
-        .catch(err => {
+        .catch((err) => {
           this.isLoading = false;
         });
     },
@@ -250,9 +253,9 @@ export default {
       this.transactionList = [];
       this.transactionRecord = 0;
       this.transactionOffset = 0;
-      this.transactionFilter.payment = e
-      this.loadTransaction()
-      this.transactionPaymentSheet = false
+      this.transactionFilter.payment = e;
+      this.loadTransaction();
+      this.transactionPaymentSheet = false;
     },
     resetFilter() {
       this.transactionList = [];
