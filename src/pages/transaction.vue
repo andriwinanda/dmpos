@@ -30,16 +30,18 @@
       <template v-else>
         <div
           class="card popup-open"
-          data-popup=".popup-detail"
+          data-popup=".demo-popup"
           v-for="item in transactionList"
           :key="item.id"
-          @click="detailTransaction(item.id)"
+          @click="detailTransaction(item.orderid)"
         >
           <div class="card-content card-content-padding">
             <p class="no-margin">
               <small>{{ moment(item.date).format("dddd, D MMM YYYY") }}</small>
               <small>{{ item.time.replace(/-/g, ":") }}</small>
-              <small class="float-right text-color-gray">{{item.payment}}</small>
+              <small class="float-right text-color-gray">{{
+                item.payment
+              }}</small>
             </p>
             <!-- <hr class="dotted" /> -->
             <table>
@@ -58,13 +60,31 @@
         </div>
       </template>
     </f7-page>
-    <!-- Popup -->
+
+    <!-- Invoice Popup -->
     <f7-popup
-      :tablet-fullscreen="true"
       class="demo-popup"
+      :tablet-fullscreen="true"
       :opened="popupOpened"
       @popup:closed="popupOpened = false"
+      push
     >
+      <f7-page :page-content="false" class="bg-color-white">
+        <f7-navbar class="capitalized">
+          <p class="capitalized text-color-white" slot="title">Invoice</p>
+          <f7-link slot="right" popup-close>
+            <f7-chip slot="left" class="no-padding-right">
+              <f7-icon slot="media" f7="multiply"></f7-icon>
+            </f7-chip>
+          </f7-link>
+        </f7-navbar>
+
+        <f7-page-content class="no-padding-top">
+          <f7-block strong class="invoice">
+            <div class="text-align-center" v-html="invoice"></div>
+          </f7-block>
+        </f7-page-content>
+      </f7-page>
     </f7-popup>
 
     <!-- Filter -->
@@ -129,6 +149,7 @@
 </template>
 <script>
 import { capitalizeLetter } from "../js/function-helper";
+
 import debounce from "debounce";
 import moment from "moment";
 
@@ -162,6 +183,7 @@ export default {
           },
         },
       }),
+      invoice: "",
     };
   },
   methods: {
@@ -213,16 +235,88 @@ export default {
       this.loadTransaction();
     },
     detailTransaction(id) {
-      //   this.showPreloader = true;
-      //   this.axios
-      //     .post(`pos/get_trans/${id}`)
-      //     .then((res) => {
-      //       console.log(res);
-      //       this.showPreloader = false;
-      //     })
-      //     .catch((err) => {
-      //       this.showPreloader = false;
-      //     });
+      this.showPreloader = true;
+      this.axios
+        .post(`pos/get_trans/${id}`)
+        .then((res) => {
+          let data = res.data.content;
+
+          this.showPreloader = false;
+            var items = "";
+          if (data.items) {
+            data.items.map((el) => {
+              items += `<tr>
+              <td> ${el.product_id} </td>
+              <td class="qty">${el.qty}</td>
+              <td class="price">${el.price}</td>
+                  <td class="price">${el.amount}</td>
+            </tr>  `;
+            });
+          }
+          let invoice = `
+<div class="sometxt">
+	<p>
+		${data.branch.b_name} <br>
+		${data.branch.b_address} <br>
+		Telp. ${data.branch.b_phone1} Kota ${data.branch.b_city} Indonesia
+	</p>
+</div>
+<table>
+	<tr>
+		<th>Nama</th>
+		<th class="qty">Qty</th>
+		<th>Harga</th>
+		<th>Total</th>
+	</tr>
+<!---------------------------------->
+<!--
+	<tr>
+		<td>Eskulin Mist Col 12</td>
+		<td class="qty">5</td>
+		<td class="price">10.300</td>
+		<td class="price">51.500</td>
+	</tr>
+-->
+    ${items}
+
+        	
+<!-------------TOTAL-------------->
+	<tr>
+		<td colspan="3"> Harga Jual --1--Item(s) </td>
+		<td class="price"> ${data.total}</td>
+	</tr>
+    
+    <tr>
+		<td colspan="3"> Discount </td>
+		<td class="price">  ${data.discount}</td>
+	</tr>
+    
+    <tr>
+		<td colspan="3"> Tax / Ppn </td>
+		<td class="price">  ${data.tax_total}</td>
+	</tr>
+    
+    <tr>
+		<td colspan="3"><b> Total </b></td>
+		<td class="price"> <b> ${data.tot_amt} </b> </td>
+	</tr>
+<!--------------------------------->
+</table>
+<div class="sometxt">
+	<p>
+		#${data.orderid} <br>
+		${data.dates} <br>
+		Terima Kasih Atas Kunjungan Anda <br>
+		Periksa Barang sebelum dibeli <br>
+		Barang yang sudah dibeli tidak bisa ditukar atau dikembalikan
+	</p>
+</div>
+`;
+          this.invoice = invoice;
+        })
+        .catch((err) => {
+          this.showPreloader = false;
+        });
     },
     loadPayment() {
       this.isLoading = true;
@@ -235,6 +329,21 @@ export default {
         .catch((err) => {
           this.isLoading = false;
         });
+    },
+    loadCompany() {
+      this.isLoading = true;
+      this.axios.get("/configuration").then((res) => {
+        this.isLoading = false;
+        let data = res.data.content;
+        let company = {
+          company: data.name,
+          address: data.address,
+          phone: data.phone1,
+          email: data.email,
+          zip: data.zip,
+        };
+        this.company = company;
+      });
     },
 
     dateFormat(value) {
@@ -273,3 +382,39 @@ export default {
   },
 };
 </script>
+<style lang="less">
+.invoice table {
+  margin: 0 auto;
+  border-bottom: 1px dotted black;
+  font-family: "verdana", sans-serif;
+  font-size: 10pt;
+  line-height: 11px;
+}
+.invoice td,
+.invoice th {
+  text-align: left;
+  padding: 5px 12px;
+}
+.invoice th {
+  border-top: 1px dotted black;
+  border-bottom: 1px dotted black;
+}
+.invoice p {
+  text-align: center;
+  margin: 0 auto;
+}
+.invoice .qty {
+  text-align: center;
+}
+.invoice.sometxt {
+  margin: 0 auto;
+  font-family: "verdana", sans-serif;
+}
+.invoice.sometxt p {
+  text-align: center;
+  font-size: 10pt;
+}
+.invoice .price {
+  text-align: right;
+}
+</style>
