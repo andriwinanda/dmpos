@@ -80,8 +80,23 @@
         </f7-navbar>
 
         <f7-page-content class="no-padding-top">
-          <f7-block strong class="invoice">
+          <f7-block strong id="invoice" class="invoice">
             <div class="text-align-center" v-html="invoice"></div>
+
+            <!-- <f7-fab-backdrop slot="fixed"></f7-fab-backdrop>
+            <f7-fab
+              position="right-bottom"
+              @click="print()"
+              slot="fixed"
+              color="primary"
+            >
+              <f7-icon f7="printer_fill"></f7-icon>
+            </f7-fab> -->
+          </f7-block>
+          <f7-block>
+            <f7-button large icon-f7="printer_fill" fill @click="print()"
+              > Print</f7-button
+            >
           </f7-block>
         </f7-page-content>
       </f7-page>
@@ -152,6 +167,7 @@ import { capitalizeLetter } from "../js/function-helper";
 
 import debounce from "debounce";
 import moment from "moment";
+import print from "print-js";
 
 const limit = 10;
 
@@ -242,11 +258,11 @@ export default {
           let data = res.data.content;
 
           this.showPreloader = false;
-            var items = "";
+          var items = "";
           if (data.items) {
             data.items.map((el) => {
               items += `<tr>
-              <td> ${el.product_id} </td>
+              <td> ${el.product} </td>
               <td class="qty">${el.qty}</td>
               <td class="price">${el.price}</td>
                   <td class="price">${el.amount}</td>
@@ -254,69 +270,78 @@ export default {
             });
           }
           let invoice = `
-<div class="sometxt">
-	<p>
-		${data.branch.b_name} <br>
-		${data.branch.b_address} <br>
-		Telp. ${data.branch.b_phone1} Kota ${data.branch.b_city} Indonesia
-	</p>
-</div>
-<table>
-	<tr>
-		<th>Nama</th>
-		<th class="qty">Qty</th>
-		<th>Harga</th>
-		<th>Total</th>
-	</tr>
-<!---------------------------------->
-<!--
-	<tr>
-		<td>Eskulin Mist Col 12</td>
-		<td class="qty">5</td>
-		<td class="price">10.300</td>
-		<td class="price">51.500</td>
-	</tr>
--->
-    ${items}
+          <div class="sometxt">
+            <p>
+              ${data.branch.b_name} <br>
+              ${data.branch.b_address} <br>
+              Telp. ${data.branch.b_phone1} Kota ${data.branch.b_city} Indonesia
+            </p>
+          </div>
+          <table>
+            <tr>
+              <th>Nama</th>
+              <th class="qty">Qty</th>
+              <th>Harga</th>
+              <th>Total</th>
+            </tr>
+          <!---------------------------------->
+          <!--
+            <tr>
+              <td>Eskulin Mist Col 12</td>
+              <td class="qty">5</td>
+              <td class="price">10.300</td>
+              <td class="price">51.500</td>
+            </tr>
+          -->
+              ${items}
 
-        	
-<!-------------TOTAL-------------->
-	<tr>
-		<td colspan="3"> Harga Jual --1--Item(s) </td>
-		<td class="price"> ${data.total}</td>
-	</tr>
-    
-    <tr>
-		<td colspan="3"> Discount </td>
-		<td class="price">  ${data.discount}</td>
-	</tr>
-    
-    <tr>
-		<td colspan="3"> Tax / Ppn </td>
-		<td class="price">  ${data.tax_total}</td>
-	</tr>
-    
-    <tr>
-		<td colspan="3"><b> Total </b></td>
-		<td class="price"> <b> ${data.tot_amt} </b> </td>
-	</tr>
-<!--------------------------------->
-</table>
-<div class="sometxt">
-	<p>
-		#${data.orderid} <br>
-		${data.dates} <br>
-		Terima Kasih Atas Kunjungan Anda <br>
-		Periksa Barang sebelum dibeli <br>
-		Barang yang sudah dibeli tidak bisa ditukar atau dikembalikan
-	</p>
-</div>
-`;
+                    
+          <!-------------TOTAL-------------->
+            <tr>
+              <td colspan="3"> Harga Jual --1--Item(s) </td>
+              <td class="price"> ${data.total}</td>
+            </tr>
+              
+              <tr>
+              <td colspan="3"> Discount </td>
+              <td class="price">  ${data.discount}</td>
+            </tr>
+              
+              <tr>
+              <td colspan="3"> Tax / Ppn </td>
+              <td class="price">  ${data.tax_total}</td>
+            </tr>
+              
+              <tr>
+              <td colspan="3"><b> Total </b></td>
+              <td class="price"> <b> ${data.tot_amt} </b> </td>
+            </tr>
+          <!--------------------------------->
+          </table>
+          <div class="sometxt">
+            <p>
+              #${data.orderid} <br>
+              ${data.dates} <br>
+              Terima Kasih Atas Kunjungan Anda <br>
+              Periksa Barang sebelum dibeli <br>
+              Barang yang sudah dibeli tidak bisa ditukar atau dikembalikan
+            </p>
+          </div>
+          `;
           this.invoice = invoice;
         })
         .catch((err) => {
           this.showPreloader = false;
         });
+    },
+    print() {
+      let attachment = document.getElementById("invoice");
+      printJS({
+        printable: "invoice",
+        type: "html",
+        header: null,
+        targetStyles: ["*"],
+      });
     },
     loadPayment() {
       this.isLoading = true;
@@ -383,6 +408,9 @@ export default {
 };
 </script>
 <style lang="less">
+.invoice{
+  width: 100% !important;
+}
 .invoice table {
   margin: 0 auto;
   border-bottom: 1px dotted black;

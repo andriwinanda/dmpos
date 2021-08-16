@@ -30,6 +30,7 @@
     "framework7-vue": "^5.7.14",
     "moment": "^2.29.1",
     "node-sass": "^5.0.0",
+    "print-js": "^1.6.0",
     "sass-loader": "^10.0.5",
     "template7": "^1.4.2",
     "vue": "^2.6.12",
