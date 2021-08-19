@@ -81,7 +81,7 @@
 
         <f7-page-content class="no-padding-top">
           <f7-block strong id="invoice" class="invoice">
-            <div class="text-align-center" v-html="invoice"></div>
+            <div class="text-align-center" id="print" v-html="invoice"></div>
 
             <!-- <f7-fab-backdrop slot="fixed"></f7-fab-backdrop>
             <f7-fab
@@ -94,8 +94,8 @@
             </f7-fab> -->
           </f7-block>
           <f7-block>
-            <f7-button large icon-f7="printer_fill" fill @click="print()"
-              > Print</f7-button
+            <f7-button large icon-f7="printer_fill" fill @click="print()">
+              Print</f7-button
             >
           </f7-block>
         </f7-page-content>
@@ -264,8 +264,8 @@ export default {
               items += `<tr>
               <td> ${el.product} </td>
               <td class="qty">${el.qty}</td>
-              <td class="price">${el.price}</td>
-                  <td class="price">${el.amount}</td>
+              <td class="price">${this.numeric(el.price)}</td>
+                  <td class="price">${this.numeric(el.amount)}</td>
             </tr>  `;
             });
           }
@@ -299,22 +299,22 @@ export default {
           <!-------------TOTAL-------------->
             <tr>
               <td colspan="3"> Harga Jual --1--Item(s) </td>
-              <td class="price"> ${data.total}</td>
+              <td class="price"> ${this.numeric(data.total)}</td>
             </tr>
               
               <tr>
               <td colspan="3"> Discount </td>
-              <td class="price">  ${data.discount}</td>
+              <td class="price">  ${this.numeric(data.discount)}</td>
             </tr>
               
               <tr>
               <td colspan="3"> Tax / Ppn </td>
-              <td class="price">  ${data.tax_total}</td>
+              <td class="price">  ${this.numeric(data.tax_total)}</td>
             </tr>
               
               <tr>
               <td colspan="3"><b> Total </b></td>
-              <td class="price"> <b> ${data.tot_amt} </b> </td>
+              <td class="price"> <b> ${this.numeric(data.tot_amt)} </b> </td>
             </tr>
           <!--------------------------------->
           </table>
@@ -336,8 +336,9 @@ export default {
     },
     print() {
       let attachment = document.getElementById("invoice");
+      
       printJS({
-        printable: "invoice",
+        printable: "print",
         type: "html",
         header: null,
         targetStyles: ["*"],
@@ -399,6 +400,16 @@ export default {
       this.transactionFilter.payment = "";
       this.loadTransaction();
     },
+    numeric(val) {
+      var formatter = new Intl.NumberFormat("ID", {
+        style: "decimal",
+
+        // These options are needed to round to whole numbers if that's what you want.
+        minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+        //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+      });
+      return formatter.format(val);
+    },
   },
   created() {
     this.transactionList = [];
@@ -408,7 +419,7 @@ export default {
 };
 </script>
 <style lang="less">
-.invoice{
+.invoice {
   width: 100% !important;
 }
 .invoice table {
@@ -416,27 +427,27 @@ export default {
   border-bottom: 1px dotted black;
   font-family: "verdana", sans-serif;
   font-size: 10pt;
-  line-height: 11px;
+  line-height: 9px;
 }
 .invoice td,
 .invoice th {
   text-align: left;
-  padding: 5px 12px;
+			padding: 5px 5px;
 }
 .invoice th {
   border-top: 1px dotted black;
-  border-bottom: 1px dotted black;
+			border-bottom: 1px dotted black;
 }
 .invoice p {
   text-align: center;
-  margin: 0 auto;
+			margin: 0;
 }
 .invoice .qty {
   text-align: center;
 }
 .invoice.sometxt {
-  margin: 0 auto;
-  font-family: "verdana", sans-serif;
+  margin: 0;
+			font-family: 'verdana', sans-serif;
 }
 .invoice.sometxt p {
   text-align: center;
