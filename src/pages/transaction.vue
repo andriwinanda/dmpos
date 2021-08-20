@@ -422,7 +422,7 @@ export default {
 #print {
   margin: 0 auto;
   width: 5.8cm !important;
-  font-size: 9pt !important;
+  font-size: 7pt !important;
 }
 .invoice {
   width: 100% !important;
