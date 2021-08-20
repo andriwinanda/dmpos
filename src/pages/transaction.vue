@@ -336,10 +336,62 @@ export default {
     },
     print() {
       let attachment = document.getElementById("invoice");
-
+      let myInvoice = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        
+        <title> POS - 14199 </title>
+        
+        <style>
+          body {
+            margin: 0 auto;
+          }
+          
+          table {
+            margin: 0 auto;
+            border-bottom: 1px dotted black;
+            font-family: 'verdana', sans-serif;
+            font-size: 10pt;
+                  line-height: 11px;
+          }
+          td, th {
+            text-align: left;
+            padding: 5px 12px;
+          }
+          th {
+            border-top: 1px dotted black;
+            border-bottom: 1px dotted black;
+          }
+          p {
+            text-align: center;
+            margin: 0 auto;
+          }
+          .qty {
+            text-align: center;
+          }
+          .sometxt {
+            margin: 0 auto;
+            font-family: 'verdana', sans-serif;
+          }
+          .sometxt p {
+            text-align: center;
+            font-size: 10pt;
+          }
+              .price{ text-align: right;}
+        </style>
+          
+      
+          
+      </head>
+      <body > ${this.invoice} 
+      </body>
+      </html>`
+            
       printJS({
-        printable: "print",
-        type: "html",
+        printable: myInvoice,
+        type: "raw-html",
         header: null,
         targetStyles: ["*"],
       });
@@ -419,10 +471,8 @@ export default {
 };
 </script>
 <style lang="less">
-#print {
+#print{
   margin: 0 auto;
-  width: 5.8cm !important;
-  font-size: 7pt !important;
 }
 .invoice {
   width: 100% !important;
@@ -431,29 +481,27 @@ export default {
   margin: 0 auto;
   border-bottom: 1px dotted black;
   font-family: "verdana", sans-serif;
-  line-height: 11px;
-  width: 5.8cm !important;
-  max-width: 5.8cm !important;
+  line-height: 9px;
 }
 .invoice td,
 .invoice th {
   text-align: left;
-  padding: 5px 2px;
+			padding: 5px 2px;
 }
 .invoice th {
   border-top: 1px dotted black;
-  border-bottom: 1px dotted black;
+			border-bottom: 1px dotted black;
 }
 .invoice p {
   text-align: center;
-  margin: 0;
+			margin: 0;
 }
 .invoice .qty {
   text-align: center;
 }
 .invoice.sometxt {
   margin: 0;
-  font-family: "verdana", sans-serif;
+			font-family: 'verdana', sans-serif;
 }
 .invoice.sometxt p {
   text-align: center;
