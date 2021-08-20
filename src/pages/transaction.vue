@@ -336,7 +336,7 @@ export default {
     },
     print() {
       let attachment = document.getElementById("invoice");
-      
+
       printJS({
         printable: "print",
         type: "html",
@@ -419,10 +419,10 @@ export default {
 };
 </script>
 <style lang="less">
-#print{
+#print {
   margin: 0 auto;
-  width: 7.5cm !important;
-
+  width: 7cm !important;
+  font-size: 9pt !important;
 }
 .invoice {
   width: 100% !important;
@@ -431,30 +431,29 @@ export default {
   margin: 0 auto;
   border-bottom: 1px dotted black;
   font-family: "verdana", sans-serif;
-  font-size: 10pt;
   line-height: 11px;
-  width: 7.5cm !important;
-  max-width: 7.5cm !important;
+  width: 7cm !important;
+  max-width: 7cm !important;
 }
 .invoice td,
 .invoice th {
   text-align: left;
-	padding: 5px 2px;
+  padding: 5px 2px;
 }
 .invoice th {
   border-top: 1px dotted black;
-			border-bottom: 1px dotted black;
+  border-bottom: 1px dotted black;
 }
 .invoice p {
   text-align: center;
-			margin: 0;
+  margin: 0;
 }
 .invoice .qty {
   text-align: center;
 }
 .invoice.sometxt {
   margin: 0;
-			font-family: 'verdana', sans-serif;
+  font-family: "verdana", sans-serif;
 }
 .invoice.sometxt p {
   text-align: center;
