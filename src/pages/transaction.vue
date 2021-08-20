@@ -421,7 +421,7 @@ export default {
 <style lang="less">
 #print{
   margin: 0 auto;
-  width: 10cm !important;
+  width: 7.5cm !important;
 
 }
 .invoice {
@@ -433,8 +433,8 @@ export default {
   font-family: "verdana", sans-serif;
   font-size: 10pt;
   line-height: 11px;
-  width: 10cm !important;
-  max-width: 10cm !important;
+  width: 7.5cm !important;
+  max-width: 7.5cm !important;
 }
 .invoice td,
 .invoice th {
