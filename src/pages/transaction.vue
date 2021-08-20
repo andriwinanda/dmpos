@@ -345,8 +345,8 @@ export default {
         <title> POS - 14199 </title>
         
         <style>
-          body {
-            margin: 0 auto;
+         body {
+            margin: 0;
           }
           
           table {
@@ -354,11 +354,11 @@ export default {
             border-bottom: 1px dotted black;
             font-family: 'verdana', sans-serif;
             font-size: 10pt;
-                  line-height: 11px;
+                  line-height: 9px;
           }
           td, th {
             text-align: left;
-            padding: 5px 12px;
+            padding: 5px 5px;
           }
           th {
             border-top: 1px dotted black;
@@ -366,20 +366,20 @@ export default {
           }
           p {
             text-align: center;
-            margin: 0 auto;
+            margin: 0;
           }
           .qty {
             text-align: center;
           }
           .sometxt {
-            margin: 0 auto;
+            margin: 0;
             font-family: 'verdana', sans-serif;
           }
           .sometxt p {
             text-align: center;
             font-size: 10pt;
           }
-              .price{ text-align: right;}
+        .price{ text-align: right;}
         </style>
           
       
