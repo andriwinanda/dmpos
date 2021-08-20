@@ -420,8 +420,9 @@ export default {
 </script>
 <style lang="less">
 #print{
-  max-width: 70mm;
   margin: 0 auto;
+  width: 7cm !important;
+
 }
 .invoice {
   width: 100% !important;
@@ -432,7 +433,8 @@ export default {
   font-family: "verdana", sans-serif;
   font-size: 10pt;
   line-height: 11px;
-    max-width: 100% !important;
+  width: 7cm !important;
+  max-width: 7cm !important;
 }
 .invoice td,
 .invoice th {
