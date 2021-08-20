@@ -419,6 +419,10 @@ export default {
 };
 </script>
 <style lang="less">
+#print{
+  max-width: 70mm;
+  margin: 0 auto;
+}
 .invoice {
   width: 100% !important;
 }
@@ -427,12 +431,13 @@ export default {
   border-bottom: 1px dotted black;
   font-family: "verdana", sans-serif;
   font-size: 10pt;
-  line-height: 9px;
+  line-height: 11px;
+    max-width: 100% !important;
 }
 .invoice td,
 .invoice th {
   text-align: left;
-			padding: 5px 5px;
+	padding: 5px 2px;
 }
 .invoice th {
   border-top: 1px dotted black;
