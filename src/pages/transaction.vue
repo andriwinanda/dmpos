@@ -97,6 +97,16 @@
             <f7-button large icon-f7="printer_fill" fill @click="print()">
               Print</f7-button
             >
+            <f7-button
+              large
+              icon-f7="printer_fill"
+              fill
+              sheet-open=".demo-sheet-swipe-to-close"
+              @click="edit()"
+              popup-close
+            >
+              Edit</f7-button
+            >
           </f7-block>
         </f7-page-content>
       </f7-page>
@@ -160,6 +170,91 @@
         </f7-list>
       </f7-page-content>
     </f7-sheet>
+
+    <!-- EDIT TRANSACTION -->
+
+    <f7-sheet
+      :opened="editSheet"
+      @sheet:closed="closeEditSheet()"
+      class="demo-sheet-swipe-to-step"
+      style="height: auto; --f7-sheet-bg-color: #fff"
+      swipe-to-close
+      swipe-to-step
+      backdrop
+    >
+      <div>
+        <!-- Initial swipe step sheet content -->
+        <div class="sheet-modal-swipe-step">
+          <div
+            class="
+              display-flex
+              padding
+              justify-content-space-between
+              align-items-center
+            "
+          >
+            <div style="font-size: 18px">
+              <b>Total:</b>
+            </div>
+            <div>
+              Rp
+              <b style="font-size: 22px">
+                <numeric :value="bag.tot_amt" />
+              </b>
+            </div>
+          </div>
+          <div class="padding-horizontal padding-bottom">
+            <f7-button large fill @click="choosePayment('bag')"
+              >Make Payment</f7-button
+            >
+            <div class="margin-top text-align-center">
+              Swipe up for more details
+            </div>
+          </div>
+        </div>
+        <!-- Rest of the sheet content that will opened with swipe -->
+        <f7-block-title medium class="margin-top">Your order:</f7-block-title>
+        <template>
+          <div
+            v-for="item in bag.items"
+            :key="item.sku"
+            class="
+              display-flex
+              padding
+              justify-content-space-between
+              align-items-center
+            "
+          >
+            <div>
+              <b style="font-size: 16px" class="capitalized">{{
+                item.product || ""
+              }}</b>
+              <p>
+                {{ item.currency }}
+                <numeric :value="item.price" />
+              </p>
+            </div>
+            <div>
+              <!-- <f7-stepper
+                :min="(item.stock>=item.min)?item.min:item.stock"
+                :max="item.stock"
+                :value="(item.stock>=item.qty)?item.qty:item.stock"
+                @stepper:change="updateBag(item.sku, $event, item.stock)"
+                raised
+                large
+              ></f7-stepper> -->
+              <f7-stepper
+                :min="1"
+                :value="Number(item.qty)"
+                @stepper:change="updateQty(item.id, $event)"
+                raised
+                large
+              ></f7-stepper>
+            </div>
+          </div>
+        </template>
+      </div>
+    </f7-sheet>
   </div>
 </template>
 <script>
@@ -175,6 +270,8 @@ export default {
   data() {
     return {
       showPreloader: true,
+      isLoading: false,
+      editSheet: false,
       transactionPaymentSheet: false,
       transactionOffset: 0,
       transactionRecord: 0,
@@ -184,9 +281,10 @@ export default {
         payment: "",
         user: "",
       },
+      id: "",
       search: "",
       paymentList: [],
-      edit: {},
+      bag: {},
       popupOpened: false,
       dataBind: {},
       filterCalendar: this.$f7.calendar.create({
@@ -256,7 +354,7 @@ export default {
         .post(`pos/get_trans/${id}`)
         .then((res) => {
           let data = res.data.content;
-
+          this.id = id;
           this.showPreloader = false;
           var items = "";
           if (data.items) {
@@ -375,7 +473,7 @@ export default {
             margin: 0;
             font-family: 'verdana', sans-serif;
           }
-          .sometxt p {
+          .sometxt p { @stepper:change="updateBag(item.sku, $event, item.stock)"
             text-align: center;
             font-size: 10pt;
           }
@@ -387,14 +485,57 @@ export default {
       </head>
       <body > ${this.invoice} 
       </body>
-      </html>`
-            
+      </html>`;
+
       printJS({
         printable: myInvoice,
         type: "raw-html",
         header: null,
         targetStyles: ["*"],
       });
+    },
+    edit() {
+      this.$f7.preloader.show();
+      this.axios
+        .post(`pos/get_trans/${this.id}`)
+        .then((res) => {
+          this.bag = res.data.content;
+          this.editSheet = true;
+          this.$f7.preloader.hide();
+        })
+        .catch((err) => {
+          this.$f7.preloader.hide();
+        });
+    },
+    closeEditSheet() {
+      this.editSheet = false;
+      this.bag = {};
+      this.id = "";
+      this.transactionList = [];
+      this.transactionOffset = 0;
+      this.transactionRecord = 0;
+      this.loadTransaction();
+    },
+    updateQty(id, val) {
+      this.$f7.preloader.show();
+
+      this.axios
+        .get(`pos/update/${id}/${val}`)
+        .then((res) => {
+          this.$f7.preloader.hide();
+          this.edit();
+          this.$f7.toast
+            .create({
+              text: res.data.content,
+              position: "bottom",
+              closeTimeout: 2000,
+              destroyOnClose: true,
+            })
+            .open();
+        })
+        .catch((err) => {
+          this.$f7.preloader.hide();
+        });
     },
     loadPayment() {
       this.isLoading = true;
@@ -471,7 +612,7 @@ export default {
 };
 </script>
 <style lang="less">
-#print{
+#print {
   margin: 0 auto;
 }
 .invoice {
@@ -486,22 +627,22 @@ export default {
 .invoice td,
 .invoice th {
   text-align: left;
-			padding: 5px 2px;
+  padding: 5px 2px;
 }
 .invoice th {
   border-top: 1px dotted black;
-			border-bottom: 1px dotted black;
+  border-bottom: 1px dotted black;
 }
 .invoice p {
   text-align: center;
-			margin: 0;
+  margin: 0;
 }
 .invoice .qty {
   text-align: center;
 }
 .invoice.sometxt {
   margin: 0;
-			font-family: 'verdana', sans-serif;
+  font-family: "verdana", sans-serif;
 }
 .invoice.sometxt p {
   text-align: center;
