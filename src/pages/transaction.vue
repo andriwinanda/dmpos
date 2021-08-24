@@ -95,11 +95,13 @@
           </f7-block>
           <f7-block>
             <f7-button large icon-f7="printer_fill" fill @click="print()">
-              Print</f7-button
-            >
+              Print
+            </f7-button>
+          </f7-block>
+
+          <f7-block>
             <f7-button
               large
-              icon-f7="printer_fill"
               fill
               sheet-open=".demo-sheet-swipe-to-close"
               @click="edit()"
