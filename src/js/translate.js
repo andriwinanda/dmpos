@@ -92,7 +92,8 @@ const messages = {
         report: {
             statement: 'Statement',
             balanceSheet: 'Balance Sheet',
-            cashFlow: 'Cash Flow'
+            cashFlow: 'Cash Flow',
+            label: 'Report'
         },
         setting: {
             label: 'Setting',
@@ -190,7 +191,8 @@ const messages = {
         report: {
             statement: 'Laporan',
             balanceSheet: 'Neraca',
-            cashFlow: 'Arus Kas'
+            cashFlow: 'Arus Kas',
+            label: 'Laporan'
         },
         setting: {
             label: 'Pengaturan',

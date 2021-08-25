@@ -20,6 +20,7 @@ import Transaction from '../pages/transaction.vue';
 import ProductDetail from '../pages/product-detail.vue';
 import Sales from '../pages/sales.vue';
 import Payment from '../pages/payment.vue';
+import Report from '../pages/report.vue';
 import Setting from '../pages/setting.vue';
 
 // function securedRoute(path, component) {
@@ -79,6 +80,10 @@ var routes = [
   {
     path: '/sales',
     component: Sales
+  },
+  {
+    path: '/report',
+    component: Report
   },
   {
     path: '/payment/:id',
