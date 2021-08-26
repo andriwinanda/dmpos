@@ -1,105 +1,115 @@
 <template>
-  <f7-page name="report" :page-content="false" ptr>
+  <div>
     <f7-navbar
-      back-link
       transparent
+      back-link
       no-hairline
       no-shadow
       :title="$t('report.label')"
-    ></f7-navbar>
-    <f7-toolbar bottom tabbar no-hairline class="bottom-bar">
-      <f7-link tab-link="#tab-1" tab-link-active>Sales</f7-link>
-      <f7-link tab-link="#tab-2">Product Sales</f7-link>
-    </f7-toolbar>
+    >
+    </f7-navbar>
+    <f7-page :hide-navbar-on-scroll="true">
+      <f7-block>
+        <h1 class="text-color-white">
+          <b>{{ $t("report.label") }}</b>
+        </h1>
+      </f7-block>
+      <f7-card>
+        <f7-card-content padding>
+          <p>Type</p>
+          <f7-input
+            class="text-color-primary"
+            label="Filter"
+            type="select"
+            v-model="filter.type"
+            @input="filter.type = $event.target.value"
+            defaultValue="0"
+            placeholder="Please choose..."
+          >
+            <f7-icon icon="demo-list-icon" slot="media"></f7-icon>
+            <option value="0">Today</option>
+            <option value="1">This month</option>
+            <option value="3">Custom</option>
+          </f7-input>
+          <br />
 
-    <f7-tabs animated>
-      <f7-tab id="tab-1" class="page-content" tab-active>
-        <f7-page
-          infinite
-          :infinite-distance="50"
-          :infinite-preloader="showPreloader"
-          @infinite="loadMoreCustomer"
-          :hide-bars-on-scroll="true"
-        >
-          <f7-block>
-            <h1 class="text-color-white">
-              <b>Sales</b>
-            </h1>
-          </f7-block>
-          <template v-if="!customerList.length && !showPreloader">
-            <f7-block>
-              <p class="text-align-center" color="gray">No item</p>
-            </f7-block>
-          </template>
-          <template v-else>
-            <f7-card v-for="item in customerList" :key="item.id">
-              <div class="card-content card-content-padding">
-                <p class="no-margin">
-                  <small>{{ item.date }}</small>
+          <div v-if="filter.type == 3">
+            <p>Start</p>
+            <f7-input
+              type="datepicker"
+              placeholder="Select date"
+              @calendar:change="filter.start = $event"
+              readonly
+              :calendar-params="{
+                url: '/laporan',
+                dateFormat: 'yyyy-mm-dd',
+                closeOnSelect: true,
+                sheetSwipeToClose: true,
+              }"
+            ></f7-input>
+            <br />
 
-                  <small class="float-right text-color-gray">{{
-                    item.payment
-                  }}</small>
-                </p>
-                <!-- <hr class="dotted" /> -->
-                <table>
-                  <tr>
-                    <td></td>
-                  </tr>
-                </table>
-                <p class="no-margin">
-                  <span>#{{ item.id }} </span>
-                  <span class="float-right">
-                    Rp
-                    <strong> <numeric :value="item.amount" /> </strong>
-                  </span>
-                </p>
-              </div>
-            </f7-card>
-          </template>
-        </f7-page>
-      </f7-tab>
-      <f7-tab id="tab-2" class="page-content">
-        <f7-page
-          infinite
-          :infinite-distance="50"
-          :infinite-preloader="showPreloader"
-          @infinite="loadMoreVendor"
-          :hide-bars-on-scroll="true"
-        >
-          <f7-block>
-            <h1 class="text-color-white">
-              <b>Product Sales</b>
-            </h1>
-          </f7-block>
-          <f7-card v-for="item in vendorList" :key="item.id">
-            <f7-card-content padding>
-              <p class="no-margin">
-                <strong class="capitalized">{{ item.product }}</strong>
-                <small class="float-right text-color-gray">
-                  x {{ item.qty }}
-                </small>
-              </p>
-              <f7-row>
-                <f7-col width="auto">
-                  <small>
-                    Sku:
-                    <i>{{ item.sku }}</i>
-                  </small>
-                </f7-col>
-                <f7-col class="text-align-right">
-                  <small class="text-color-gray">Rp</small>
-                  <b>
-                    <numeric :value="item.amount" />
-                  </b>
-                </f7-col>
-              </f7-row>
-            </f7-card-content>
-          </f7-card>
-        </f7-page>
-      </f7-tab>
-    </f7-tabs>
-  </f7-page>
+            <p>End</p>
+            <f7-input
+              type="datepicker"
+              placeholder="Select date"
+              @calendar:change="filter.end = $event"
+              readonly
+              :calendar-params="{
+                url: '/laporan',
+                dateFormat: 'yyyy-mm-dd',
+                closeOnSelect: true,
+                sheetSwipeToClose: true,
+              }"
+            ></f7-input>
+            <br />
+          </div>
+
+          <p>{{ $t("general.payment") }}</p>
+          <!-- <f7-input
+            type="select"
+            defaultValue="IDR"
+            class="text-color-primary"
+            placeholder="Please choose..."
+          > -->
+          <f7-input
+            type="select"
+            defaultValue="IDR"
+            class="text-color-primary"
+            placeholder="Please choose..."
+            v-model="filter.payment"
+            @input="filter.payment = $event.target.value"
+          >
+            <f7-icon icon="demo-list-icon" slot="media"></f7-icon>
+            <option v-for="item in paymentList" :key="item.id" :value="item.id">
+              {{ item.name }}
+            </option>
+          </f7-input>
+          <br />
+          <p>{{ $t("report.label") }}</p>
+          <f7-input
+            class="text-color-primary"
+            label="Filter"
+            type="select"
+            v-model="reportType"
+            @input="reportType = $event.target.value"
+            defaultValue="0"
+            placeholder="Please choose..."
+          >
+            <f7-icon icon="demo-list-icon" slot="media"></f7-icon>
+            <option value="summary">Summary</option>
+            <option value="product_summary">Product Summary</option>
+          </f7-input>
+          <br />
+        </f7-card-content>
+      </f7-card>
+      <f7-block class="margin-top">
+        <f7-button large fill @click="generateReport()">{{
+          $t("general.generateReport")
+        }}</f7-button>
+      </f7-block>
+    </f7-page>
+  </div>
 </template>
 <script>
 import { capitalizeLetter } from "../js/function-helper";
@@ -109,99 +119,48 @@ export default {
   data() {
     return {
       showPreloader: true,
-      customerOffset: 0,
-      customerRecord: 0,
-      customerList: [],
-      customerFilter: {
-        city: "",
+      paymentList: [],
+      filter: {
+        type: 0,
+        start: "",
+        end: "",
+        payment: "",
       },
-      vendorOffset: 0,
-      vendorRecord: 0,
-      vendorList: [],
-      vendorFilter: {
-        city: "",
-      },
+      reportType: "summary",
     };
   },
   methods: {
-    capitalize(str) {
-      return capitalizeLetter(str);
+    // Load Payment
+    loadPayment() {
+      this.axios.get("/payment").then((res) => {
+        this.paymentList = res.data.content.result;
+      });
     },
-    loadCustomer() {
+    dateFormat(value) {
+      return this.moment(value).format("YYYY-MM-DD");
+    },
+    generateReport() {
       this.showPreloader = true;
-      let data = {
-        type: "1",
-        payment: "5",
-        start: "2021-08-12",
-        end: "2021-08-12",
-        user: "",
-        limit: 10,
-        offset: 0,
-      };
+      let data = this.filter;
+      data.start = this.dateFormat(this.filter.start[0]);
+      data.end = this.dateFormat(this.filter.end[0]);
+      data.limit = 1000;
+      data.offset = 0;
+      data.user = "";
       this.axios
-        .post("/pos/summary", data)
+        .post(`/pos/${this.reportType}`, data)
         .then((res) => {
           let data = res.data.content;
-          if (data.result) {
-            data.result.map((el) => {
-              this.customerList.push(el);
-            });
-          } else this.customerList = [];
-          this.customerRecord = data.record;
+          console.log(data);
           this.showPreloader = false;
         })
         .catch((err) => {
           this.showPreloader = false;
         });
-    },
-    loadMoreCustomer() {
-      if (
-        !this.showPreloader &&
-        this.customerList.length < this.customerRecord
-      ) {
-        this.customerOffset += limit;
-        this.loadCustomer();
-      }
-    },
-    loadVendor() {
-      this.showPreloader = true;
-      let data = {
-        type: "1",
-        payment: "5",
-        start: "2021-08-12",
-        end: "2021-08-12",
-        user: "",
-        limit: 10,
-        offset: 0,
-      };
-      this.axios
-        .post("/pos/summary_product", data)
-        .then((res) => {
-          let data = res.data.content;
-          if (data.result) {
-            data.result.map((el) => {
-              this.vendorList.push(el);
-            });
-          } else this.vendorList = [];
-          this.vendorRecord = data.record;
-          this.showPreloader = false;
-        })
-        .catch((err) => {
-          this.showPreloader = false;
-        });
-    },
-    loadMoreVendor() {
-      if (!this.showPreloader && this.vendorList.length < this.vendorRecord) {
-        this.vendorOffset += limit;
-        this.loadVendor();
-      }
     },
   },
   created() {
-    this.vendorList = [];
-    this.customerList = [];
-    this.loadVendor();
-    this.loadCustomer();
+    this.loadPayment();
   },
 };
 </script>
