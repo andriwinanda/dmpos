@@ -109,6 +109,49 @@
         }}</f7-button>
       </f7-block>
     </f7-page>
+
+    <!-- Invoice Popup -->
+    <f7-popup
+      class="demo-popup"
+      :tablet-fullscreen="true"
+      :opened="popupOpened"
+      @popup:closed="popupOpened = false"
+      push
+    >
+      <f7-page :page-content="false" class="bg-color-white">
+        <f7-navbar class="capitalized">
+          <p class="capitalized text-color-white" slot="title">Invoice</p>
+          <f7-link slot="right" popup-close>
+            <f7-chip slot="left" class="no-padding-right">
+              <f7-icon slot="media" f7="multiply"></f7-icon>
+            </f7-chip>
+          </f7-link>
+        </f7-navbar>
+
+        <f7-page-content class="no-padding-top">
+          <f7-block strong id="invoice" class="invoice">
+            <div class="text-align-center" id="print" v-if="invoice" v-html="invoice"></div>
+          </f7-block>
+          <f7-block>
+            <f7-button large icon-f7="printer_fill" fill @click="print()">
+              Print
+            </f7-button>
+          </f7-block>
+
+          <f7-block>
+            <f7-button
+              large
+              fill
+              sheet-open=".demo-sheet-swipe-to-close"
+              @click="edit()"
+              popup-close
+            >
+              Edit</f7-button
+            >
+          </f7-block>
+        </f7-page-content>
+      </f7-page>
+    </f7-popup>
   </div>
 </template>
 <script>
@@ -118,6 +161,7 @@ const limit = 10;
 export default {
   data() {
     return {
+      popupOpened: false,
       showPreloader: true,
       paymentList: [],
       filter: {
@@ -127,6 +171,7 @@ export default {
         payment: "",
       },
       reportType: "summary",
+      invoice: '',
     };
   },
   methods: {
@@ -149,14 +194,78 @@ export default {
       data.user = "";
       this.axios
         .post(`/pos/${this.reportType}`, data)
-        .then((res) => {
-          let data = res.data.content;
-          console.log(data);
+        .then((response) => {
+          this.popupOpened = true;
           this.showPreloader = false;
+          let res = response.data.content;
+          var items = "";
+          if (res.result) {
+            res.result.map((el) => {
+              items += `<tr>
+              <td> #${el.id} </td>
+              <td class="qty">${el.date}</td>
+              <td class="price">${el.payment}</td>
+                  <td class="price">${this.numeric(el.amount)}</td>
+            </tr>  `;
+            });
+          }
+          let invoice = `
+          <div class="sometxt">
+           
+          <div class="sometxt">
+            <p>
+              Order ID : #${res.orderid}
+            </p>
+            <br/>
+          </div>
+
+          <table>
+            <tr>
+              <th>ID</th>
+              <th class="qty">Date</th>
+              <th>Payment</th>
+              <th>Total</th>
+            </tr>
+          <!---------------------------------->
+          <!--
+            <tr>
+              <td>Eskulin Mist Col 12</td>
+              <td class="qty">5</td>
+              <td class="price">10.300</td>
+              <td class="price">51.500</td>
+            </tr>
+          -->
+              ${res.result? items : ''}
+
+                    
+          <!-------------TOTAL-------------->
+            <tr>
+              <td colspan="3"><b>Total </b></td>
+              <td class="price"><b> ${this.numeric(res.total_amount)}</b></td>
+            </tr>
+              
+            
+          <!--------------------------------->
+          </table>
+          `;
+          this.invoice = invoice;
+          
+          console.log(items)
         })
         .catch((err) => {
           this.showPreloader = false;
         });
+    },
+    
+    numeric(val) {
+      var formatter = new Intl.NumberFormat("ID", {
+        style: "decimal",
+
+        // These options are needed to round to whole numbers if that's what you want.
+        minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+        //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+      });
+      return formatter.format(val);
     },
   },
   created() {
