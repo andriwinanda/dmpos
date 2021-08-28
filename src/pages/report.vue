@@ -74,7 +74,6 @@
           > -->
           <f7-input
             type="select"
-            defaultValue="IDR"
             class="text-color-primary"
             placeholder="Please choose..."
             v-model="filter.payment"
@@ -93,12 +92,12 @@
             type="select"
             v-model="reportType"
             @input="reportType = $event.target.value"
-            defaultValue="0"
+            defaultValue="summary"
             placeholder="Please choose..."
           >
             <f7-icon icon="demo-list-icon" slot="media"></f7-icon>
             <option value="summary">Summary</option>
-            <option value="product_summary">Product Summary</option>
+            <option value="summary_product">Product Summary</option>
           </f7-input>
           <br />
         </f7-card-content>
@@ -120,7 +119,7 @@
     >
       <f7-page :page-content="false" class="bg-color-white">
         <f7-navbar class="capitalized">
-          <p class="capitalized text-color-white" slot="title">Invoice</p>
+          <p class="capitalized text-color-white" slot="title">Report</p>
           <f7-link slot="right" popup-close>
             <f7-chip slot="left" class="no-padding-right">
               <f7-icon slot="media" f7="multiply"></f7-icon>
@@ -129,26 +128,20 @@
         </f7-navbar>
 
         <f7-page-content class="no-padding-top">
-          <f7-block strong id="invoice" class="invoice">
-            <div class="text-align-center" id="print" v-if="invoice" v-html="invoice"></div>
+          <f7-block strong id="report" class="report">
+            <div
+              class="text-align-center"
+              id="print"
+              v-if="report"
+              v-html="report"
+            ></div>
           </f7-block>
           <f7-block>
             <f7-button large icon-f7="printer_fill" fill @click="print()">
               Print
             </f7-button>
           </f7-block>
-
-          <f7-block>
-            <f7-button
-              large
-              fill
-              sheet-open=".demo-sheet-swipe-to-close"
-              @click="edit()"
-              popup-close
-            >
-              Edit</f7-button
-            >
-          </f7-block>
+        
         </f7-page-content>
       </f7-page>
     </f7-popup>
@@ -171,7 +164,7 @@ export default {
         payment: "",
       },
       reportType: "summary",
-      invoice: '',
+      report: "",
     };
   },
   methods: {
@@ -198,34 +191,65 @@ export default {
           this.popupOpened = true;
           this.showPreloader = false;
           let res = response.data.content;
-          var items = "";
-          if (res.result) {
-            res.result.map((el) => {
-              items += `<tr>
-              <td> #${el.id} </td>
-              <td class="qty">${el.date}</td>
-              <td class="price">${el.payment}</td>
-                  <td class="price">${this.numeric(el.amount)}</td>
-            </tr>  `;
-            });
+          var items;
+          if (this.reportType == "summary") {
+            items = ` <tr>
+                <th>ID</th>
+                <th class="qty">Date</th>
+                <th class="qty">Payment</th>
+                <th class="price">Total</th>
+              </tr>`;
+            if (res.result) {
+              res.result.map((el) => {
+                items += `<tr>
+                <td> #${el.id} </td>
+                <td class="qty">${el.date}</td>
+                <td class="qty">${el.payment}</td>
+                    <td class="price">${this.numeric(el.amount)}</td>
+                </tr>  `;
+              });
+            }
+            items += ` <tr>
+            <td colspan="3"><b>Total </b></td>
+            <td class="price">Rp <b> ${this.numeric(res.total_amount)}</b></td>
+            </tr>`;
+
+          } else {
+            items = ` <tr>
+            <th>Nama</th>
+            <th class="qty">Qty</th>
+            <th class="price">Total</th>
+            </tr>`;
+            if (res.result) {
+              res.result.map((el) => {
+                items += `<tr>
+                <td> ${el.product} </td>
+                <td class="qty">${el.qty}</td>
+                <td class="price">${this.numeric(el.amount)}</td>
+              </tr>  `;
+              });
+            }
+            items += ` <tr>
+            <td colspan="2"><b>Total </b></td>
+            <td class="price">Rp <b> ${this.numeric(res.total_amount)}</b></td>
+            </tr>`;
           }
-          let invoice = `
-          <div class="sometxt">
+          let report = `
            
           <div class="sometxt">
             <p>
-              Order ID : #${res.orderid}
+              Report ID : #${res.orderid}
+            </p>
+            <p>
+              <strong>
+                Total : Rp ${this.numeric(res.total_amount)}
+              </strong>
             </p>
             <br/>
           </div>
 
           <table>
-            <tr>
-              <th>ID</th>
-              <th class="qty">Date</th>
-              <th>Payment</th>
-              <th>Total</th>
-            </tr>
+           
           <!---------------------------------->
           <!--
             <tr>
@@ -235,28 +259,79 @@ export default {
               <td class="price">51.500</td>
             </tr>
           -->
-              ${res.result? items : ''}
+              ${res.result ? items : ""}
 
                     
           <!-------------TOTAL-------------->
-            <tr>
-              <td colspan="3"><b>Total </b></td>
-              <td class="price"><b> ${this.numeric(res.total_amount)}</b></td>
-            </tr>
+           
               
             
           <!--------------------------------->
           </table>
           `;
-          this.invoice = invoice;
-          
-          console.log(items)
+          this.report = report;
         })
         .catch((err) => {
           this.showPreloader = false;
         });
     },
-    
+ print() {
+      let myReport = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <title> POS - 14199 </title>
+        
+        <style>
+         body {
+            margin: 0;
+          }
+        
+          table {
+            margin: 0 auto;
+            border-bottom: 1px dotted black;
+            font-family: 'verdana', sans-serif;
+            font-size: 10pt;
+             line-height: 9px;
+          }
+          td, th {
+            text-align: left;
+            padding: 5px 5px;
+          }
+          th {
+            border-top: 1px dotted black;
+            border-bottom: 1px dotted black;
+          }
+          p {
+            text-align: center;
+            margin: 0;
+          }
+          .qty {
+            text-align: center;
+          }
+          .sometxt {
+            margin: 0;
+            font-family: 'verdana', sans-serif;
+          }
+          .sometxt p { @stepper:change="updateBag(item.sku, $event, item.stock)"
+            text-align: center;
+            font-size: 10pt;
+          }
+        .price{ text-align: right;}
+        </style>
+      </head>
+      <body > ${this.report} 
+      </body>
+      </html>`;
+
+      printJS({
+        printable: myReport,
+        type: "raw-html",
+        header: null,
+        targetStyles: ["*"],
+      });
+    },
     numeric(val) {
       var formatter = new Intl.NumberFormat("ID", {
         style: "decimal",
@@ -273,3 +348,46 @@ export default {
   },
 };
 </script>
+<style lang="less">
+#print {
+  margin: 0 auto;
+}
+.report {
+  width: 100% !important;
+}
+.report table {
+  margin: 0 auto;
+  min-height: 200px;
+  width: 100%;
+  border-bottom: 1px dotted black;
+  font-family: "verdana", sans-serif;
+  line-height: 9px;
+}
+.report td,
+.report th {
+  text-align: left;
+  padding: 5px 2px;
+}
+.report th {
+  border-top: 1px dotted black;
+  border-bottom: 1px dotted black;
+}
+.report p {
+  text-align: center;
+  margin: 0;
+}
+.report .qty {
+  text-align: center;
+}
+.report.sometxt {
+  margin: 0;
+  font-family: "verdana", sans-serif;
+}
+.report.sometxt p {
+  text-align: center;
+  font-size: 10pt;
+}
+.report .price {
+  text-align: right;
+}
+</style>
