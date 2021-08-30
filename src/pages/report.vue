@@ -141,7 +141,6 @@
               Print
             </f7-button>
           </f7-block>
-        
         </f7-page-content>
       </f7-page>
     </f7-popup>
@@ -194,26 +193,23 @@ export default {
           var items;
           if (this.reportType == "summary") {
             items = ` <tr>
-                <th>ID</th>
-                <th class="qty">Date</th>
+                <th>Date</th>
                 <th class="qty">Payment</th>
                 <th class="price">Total</th>
               </tr>`;
             if (res.result) {
               res.result.map((el) => {
                 items += `<tr>
-                <td> #${el.id} </td>
-                <td class="qty">${el.date}</td>
+                <td>${el.date}</td>
                 <td class="qty">${el.payment}</td>
                     <td class="price">${this.numeric(el.amount)}</td>
                 </tr>  `;
               });
             }
             items += ` <tr>
-            <td colspan="3"><b>Total </b></td>
+            <td colspan="2"><b>Total </b></td>
             <td class="price">Rp <b> ${this.numeric(res.total_amount)}</b></td>
             </tr>`;
-
           } else {
             items = ` <tr>
             <th>Nama</th>
@@ -238,7 +234,9 @@ export default {
            
           <div class="sometxt">
             <p>
-              Report ID : #${res.orderid}
+              ${res.branch.b_name} <br>
+              ${res.branch.b_address} <br>
+              Telp. ${res.branch.b_phone1} Kota ${res.branch.b_city} Indonesia
             </p>
             <p>
               <strong>
@@ -275,7 +273,7 @@ export default {
           this.showPreloader = false;
         });
     },
- print() {
+    print() {
       let myReport = `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -293,11 +291,16 @@ export default {
             border-bottom: 1px dotted black;
             font-family: 'verdana', sans-serif;
             font-size: 10pt;
-             line-height: 9px;
+            line-height: 9px;
+            border-collapse: collapse;
           }
-          td, th {
+          td,
+          th {
             text-align: left;
-            padding: 5px 5px;
+            padding: 5px 2px;
+          }
+          tr {
+            border-bottom: 1px dotted black;
           }
           th {
             border-top: 1px dotted black;
@@ -362,11 +365,15 @@ export default {
   border-bottom: 1px dotted black;
   font-family: "verdana", sans-serif;
   line-height: 9px;
+  border-collapse: collapse;
 }
 .report td,
 .report th {
   text-align: left;
   padding: 5px 2px;
+}
+.report tr {
+  border-bottom: 1px dotted black;
 }
 .report th {
   border-top: 1px dotted black;
