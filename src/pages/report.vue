@@ -234,9 +234,9 @@ export default {
            
           <div class="sometxt">
             <p>
-              ${res.branch.b_name} <br>
-              ${res.branch.b_address} <br>
-              Telp. ${res.branch.b_phone1} Kota ${res.branch.b_city} Indonesia
+              ${res.b_name} <br>
+              ${res.b_address} <br>
+              Telp. ${res.b_phone1} Kota ${res.b_city} Indonesia
             </p>
             <p>
               <strong>
