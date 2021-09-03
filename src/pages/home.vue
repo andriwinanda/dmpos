@@ -7,6 +7,20 @@
         >,
       </h3>
     </f7-block>
+     <f7-card class="bg-color-white">
+      <f7-card-content>
+        <p class="text-color-gray">
+          <b>{{ company.company }}</b>
+          <br />
+          <small>
+            {{ company.address }}
+            <br />
+            {{ company.phone ? "Phone: " + company.phone : "" }},
+            {{ company.email ? "Email: " + company.email : "" }}
+          </small>
+        </p>
+      </f7-card-content>
+    </f7-card>
     <f7-block>
       <f7-row>
         <f7-col
@@ -76,7 +90,7 @@
           class="text-align-center bg-color-white padding"
           style="border-radius: 20px"
         >
-         <f7-link
+          <f7-link
             @click="logout()"
             icon-f7="square_arrow_left"
             icon-size="50"
@@ -88,17 +102,16 @@
     </f7-block>
     <f7-card v-if="company" class="bg-color-white">
       <f7-card-content>
-
-      <p class="text-color-gray">
-        <b>{{ company.company }}</b>
-        <br />
-        <small>
-          {{ company.address }}
+        <p class="text-color-gray">
+          <b>{{ company.company }}</b>
           <br />
-          {{ company.phone ? "Phone: " + company.phone : "" }},
-          {{ company.email ? "Email: " + company.email : "" }}
-        </small>
-      </p>
+          <small>
+            {{ company.address }}
+            <br />
+            {{ company.phone ? "Phone: " + company.phone : "" }},
+            {{ company.email ? "Email: " + company.email : "" }}
+          </small>
+        </p>
       </f7-card-content>
     </f7-card>
   </f7-page>
@@ -116,6 +129,7 @@ export default {
       isLoading: false,
       info: {},
       company: {},
+      total_amount: 0
     };
   },
   methods: {
@@ -142,6 +156,22 @@ export default {
         this.company = company;
       });
     },
+    generateReport() {
+      this.showPreloader = true;
+      let data = {
+        type: "1",
+        payment: "",
+        start: "",
+        end: "",
+        user: "",
+        limit: 1000,
+        offset: 0,
+      };
+      data.user = "";
+      this.axios.post(`/pos/summary`, data).then((response) => {
+        console.log(response.data.content.total_amount);
+      });
+    },
   },
 
   computed: {
@@ -155,6 +185,7 @@ export default {
     if (!getBaseUrl() && !getToken()) window.location.replace("/get-url");
     else if (!getToken()) window.location.replace("/login");
     this.loadCompany();
+    this.generateReport();
   },
 };
 </script>
