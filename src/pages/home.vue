@@ -1,12 +1,5 @@
 <template>
   <f7-page name="home" :page-content="false">
-    <!-- Top Navline -->
-    <!-- <f7-navbar :sliding="false" :transparent="true">
-      <f7-nav-left>
-        <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
-    </f7-nav-left>-->
-    <!-- <f7-nav-title class="text-color-primary">{{$t('dashboard.label')}}</f7-nav-title> -->
-    <!-- </f7-navbar> -->
     <f7-block>
       <h3 class="text-color-white" style="font-weight: normal">
         Hello
@@ -72,12 +65,12 @@
           style="border-radius: 20px"
         >
           <f7-link
-            href="/setting"
-            icon-f7="gear_alt_fill"
+            href="/help"
+            icon-f7="question_diamond_fill"
             icon-size="50"
           ></f7-link>
           <br />
-          <small class="text-color-primary">Setting</small>
+          <small class="text-color-primary">Help</small>
         </f7-col>
         <f7-col
           class="text-align-center bg-color-white padding"
@@ -93,7 +86,9 @@
         </f7-col>
       </f7-row>
     </f7-block>
-    <f7-block v-if="company">
+    <f7-card v-if="company" class="bg-color-white">
+      <f7-card-content>
+
       <p class="text-color-gray">
         <b>{{ company.company }}</b>
         <br />
@@ -104,7 +99,8 @@
           {{ company.email ? "Email: " + company.email : "" }}
         </small>
       </p>
-    </f7-block>
+      </f7-card-content>
+    </f7-card>
   </f7-page>
 </template>
 <script>

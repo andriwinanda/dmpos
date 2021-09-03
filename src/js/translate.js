@@ -95,8 +95,8 @@ const messages = {
             cashFlow: 'Cash Flow',
             label: 'Report'
         },
-        setting: {
-            label: 'Setting',
+        help: {
+            label: 'Help',
             langLabel: 'Change language',
         },
         login: {
@@ -194,8 +194,8 @@ const messages = {
             cashFlow: 'Arus Kas',
             label: 'Laporan'
         },
-        setting: {
-            label: 'Pengaturan',
+        help: {
+            label: 'Bantuan',
             langLabel: 'Ubah bahasa',
 
         },

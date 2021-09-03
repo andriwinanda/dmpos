@@ -26,7 +26,7 @@
         </h1>
       </f7-block>
 
-      <f7-card v-for="(item) in productList" :key="item.id">
+      <div class="bg-color-white hairline-bottom " v-for="(item) in productList" :key="item.id">
         <f7-link style="display:block" color="black" @click="detailProduct(item.id,item.publish)">
           <f7-card-content padding>
             <p class="no-margin">
@@ -52,7 +52,7 @@
             </f7-row>
           </f7-card-content>
         </f7-link>
-      </f7-card>
+      </div>
     </f7-page>
     <!-- Popup -->
     <f7-popup

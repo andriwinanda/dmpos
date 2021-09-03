@@ -29,7 +29,7 @@
       </template>
       <template v-else>
         <div
-          class="card popup-open"
+          class="bg-color-white hairline-bottom popup-open"
           data-popup=".demo-popup"
           v-for="item in transactionList"
           :key="item.id"

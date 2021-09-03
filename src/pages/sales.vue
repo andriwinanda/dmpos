@@ -57,7 +57,7 @@
         </h1>
       </f7-block>
 
-      <f7-card v-for="item in productList" :key="item.id">
+      <div class="bg-color-white hairline-bottom" v-for="item in productList" :key="item.id">
         <f7-link
           style="display: block"
           color="black"
@@ -87,7 +87,7 @@
             </f7-row>
           </f7-card-content>
         </f7-link>
-      </f7-card>
+      </div>
     </f7-page>
     <f7-fab
       position="center-bottom"

@@ -21,7 +21,7 @@ import ProductDetail from '../pages/product-detail.vue';
 import Sales from '../pages/sales.vue';
 import Payment from '../pages/payment.vue';
 import Report from '../pages/report.vue';
-import Setting from '../pages/setting.vue';
+import Help from '../pages/help.vue';
 
 // function securedRoute(path, component) {
 //   return {
@@ -90,8 +90,8 @@ var routes = [
     component: Payment
   },
   {
-    path: '/setting',
-    component: Setting
+    path: '/help',
+    component: Help
   },
   
 

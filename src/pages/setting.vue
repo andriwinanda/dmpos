@@ -1,7 +1,7 @@
 <template>
   <div>
     <f7-page :hide-navbar-on-scroll="true">
-      <f7-navbar back-link no-hairline no-shadow :title="$t('setting.label')">
+      <f7-navbar back-link no-hairline transparent no-shadow :title="$t('help.label')">
         <!-- <f7-subnavbar :inner="false">
         </f7-subnavbar>-->
       </f7-navbar>
