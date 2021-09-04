@@ -1,7 +1,7 @@
 <template>
   <f7-page login-screen>
     <f7-login-screen-title>
-      <img src="https://dswip.com/img/logo2.png" alt width="200" />
+      <img data-src="../static/icons/logo.png" alt width="100" class="lazy" />
     </f7-login-screen-title>
     <f7-list form>
       <f7-list-input
@@ -36,7 +36,7 @@
       </f7-row>
     </f7-block>
     <!-- Language -->
-    <f7-block>{{ $t("setting.langLabel") }}</f7-block>
+    <f7-block>{{ $t("help.langLabel") }}</f7-block>
     <f7-block>
       <f7-row>
         <f7-col v-for="entry in languages" :key="entry.title">
