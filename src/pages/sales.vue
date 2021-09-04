@@ -5,7 +5,7 @@
       no-hairline
       padding
       no-shadow
-      :title="$t('product.label')"
+      :title="$t('sales.label')"
     >
       <f7-searchbar
         no-hairline
@@ -53,7 +53,7 @@
     >
       <f7-block>
         <h1 class="text-color-white">
-          <b>Sales</b>
+          <b>{{$t('sales.label')}}</b>
         </h1>
       </f7-block>
 

@@ -7,18 +7,31 @@
         >,
       </h3>
     </f7-block>
-     <f7-card class="bg-color-white">
+    <f7-card class="bg-color-white" >
       <f7-card-content>
-        <p class="text-color-gray">
-          <b>{{ company.company }}</b>
-          <br />
-          <small>
-            {{ company.address }}
-            <br />
-            {{ company.phone ? "Phone: " + company.phone : "" }},
-            {{ company.email ? "Email: " + company.email : "" }}
-          </small>
-        </p>
+        <f7-row class="align-items-center">
+          <f7-col width="15">
+            <f7-icon color="gray" size="32" f7="bag"
+          /></f7-col>
+          <f7-col width="25">
+            <p class="text-color-gray">
+              {{ $t("sales.label") }} <br />
+
+              <b>{{ moment(new Date()).format(" MMM YYYY") }}</b>
+            </p>
+          </f7-col>
+          <f7-col width="50" class="text-align-right" @click="$f7router.navigate('/report')">
+            <small class="text-color-gray">Rp</small>
+            <span style="font-size: 14pt">
+              <b>
+                <numeric :value="total_amount" />
+              </b>
+            </span>
+          </f7-col>
+          <f7-col width="10" class="text-align-right">
+              <f7-icon size="18"  class=" align-items-center" f7="chevron_right"></f7-icon>
+          </f7-col>
+        </f7-row>
       </f7-card-content>
     </f7-card>
     <f7-block>
@@ -129,7 +142,7 @@ export default {
       isLoading: false,
       info: {},
       company: {},
-      total_amount: 0
+      total_amount: 0,
     };
   },
   methods: {
@@ -169,7 +182,8 @@ export default {
       };
       data.user = "";
       this.axios.post(`/pos/summary`, data).then((response) => {
-        console.log(response.data.content.total_amount);
+        let summary = response.data.content;
+        this.total_amount = summary.total_amount;
       });
     },
   },
