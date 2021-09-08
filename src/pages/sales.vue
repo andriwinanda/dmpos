@@ -554,7 +554,7 @@ export default {
         })
         .catch((err) => {
           this.$f7.dialog.close();
-          this.$f7.dialog.alert(err, "Error");
+          this.$f7.dialog.alert(err.response.data.error, "Error");
         });
     },
   },

@@ -13,6 +13,7 @@
         <f7-row>
           <f7-col>
             <f7-button
+            
               fill
               :color="publish == 0? 'green': 'gray'"
               @click="publishProduct()"
@@ -81,7 +82,7 @@
           </table>
           <br />
 
-          <f7-button fill color="primary" @click="editProduct()">Edit</f7-button>
+          <f7-button large fill color="primary" @click="editProduct()">Edit</f7-button>
         </f7-block>
         <f7-block v-else>
           <f7-list no-hairlines>
@@ -172,10 +173,10 @@
           <br />
           <f7-row>
             <f7-col>
-              <f7-button fill color="orange" @click="isEditFormActive = false">Cancel</f7-button>
+              <f7-button large fill color="orange" @click="isEditFormActive = false">Cancel</f7-button>
             </f7-col>
             <f7-col>
-              <f7-button fill @click="updateProduct()">Save</f7-button>
+              <f7-button large fill @click="updateProduct()">Save</f7-button>
             </f7-col>
           </f7-row>
         </f7-block>

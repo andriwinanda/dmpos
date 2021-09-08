@@ -29,7 +29,7 @@
             <f7-icon icon="demo-list-icon" slot="media"></f7-icon>
             <option value="0">Today</option>
             <option value="1">This month</option>
-            <option value="3">Custom</option>
+            <option value="2">Custom</option>
           </f7-input>
           <br />
 

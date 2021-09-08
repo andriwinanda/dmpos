@@ -24,12 +24,12 @@
     <f7-block>
       <f7-row>
         <f7-col>
-          <f7-button fill color="orange" @click.prevent="reset()"
+          <f7-button large fill color="orange" @click.prevent="reset()"
             >Reset</f7-button
           >
         </f7-col>
         <f7-col>
-          <f7-button fill color="primary" @click.prevent="login()">{{
+          <f7-button large fill color="primary" @click.prevent="login()">{{
             $t("login.label")
           }}</f7-button>
         </f7-col>
@@ -41,6 +41,7 @@
       <f7-row>
         <f7-col v-for="entry in languages" :key="entry.title">
           <f7-button
+            large
             fill
             :color="lang === entry.language ? 'primary' : 'gray'"
             @click="changeLocale(entry.language)"

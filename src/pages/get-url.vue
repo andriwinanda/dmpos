@@ -15,7 +15,7 @@
       ></f7-list-input>
     </f7-list>
     <f7-list>
-      <f7-list-button fill raised title="Get url" @click.prevent="getUrl()"></f7-list-button>
+      <f7-list-button large fill raised title="Get url" @click.prevent="getUrl()"></f7-list-button>
     </f7-list>
   </f7-page>
 </template>

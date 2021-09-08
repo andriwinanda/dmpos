@@ -82,16 +82,6 @@
         <f7-page-content class="no-padding-top">
           <f7-block strong id="invoice" class="invoice">
             <div class="text-align-center" id="print" v-html="invoice"></div>
-
-            <!-- <f7-fab-backdrop slot="fixed"></f7-fab-backdrop>
-            <f7-fab
-              position="right-bottom"
-              @click="print()"
-              slot="fixed"
-              color="primary"
-            >
-              <f7-icon f7="printer_fill"></f7-icon>
-            </f7-fab> -->
           </f7-block>
           <f7-block>
             <f7-button large icon-f7="printer_fill" fill @click="print()">
@@ -100,15 +90,24 @@
           </f7-block>
 
           <f7-block>
-            <f7-button
-              large
-              fill
-              sheet-open=".demo-sheet-swipe-to-close"
-              @click="edit()"
-              popup-close
-            >
-              Edit</f7-button
-            >
+            <f7-row>
+              <f7-col>
+                <f7-button large fill color="red" @click.prevent="deleteTrans()"
+                  >Delete</f7-button
+                >
+              </f7-col>
+              <f7-col>
+                <f7-button
+                  large
+                  fill
+                  sheet-open=".demo-sheet-swipe-to-close"
+                  @click="edit()"
+                  popup-close
+                >
+                  Edit
+                </f7-button>
+              </f7-col>
+            </f7-row>
           </f7-block>
         </f7-page-content>
       </f7-page>
@@ -500,6 +499,19 @@ export default {
       this.$f7.preloader.show();
       this.axios
         .post(`pos/get_trans/${this.id}`)
+        .then((res) => {
+          this.bag = res.data.content;
+          this.editSheet = true;
+          this.$f7.preloader.hide();
+        })
+        .catch((err) => {
+          this.$f7.preloader.hide();
+        });
+    },
+    deleteTrans() {
+      this.$f7.preloader.show();
+      this.axios
+        .get(`pos/delete/${this.id}`)
         .then((res) => {
           this.bag = res.data.content;
           this.editSheet = true;
