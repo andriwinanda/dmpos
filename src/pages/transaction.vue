@@ -90,24 +90,15 @@
           </f7-block>
 
           <f7-block>
-            <f7-row>
-              <f7-col>
-                <f7-button large fill color="red" @click.prevent="deleteTrans()"
-                  >Delete</f7-button
-                >
-              </f7-col>
-              <f7-col>
-                <f7-button
-                  large
-                  fill
-                  sheet-open=".demo-sheet-swipe-to-close"
-                  @click="edit()"
-                  popup-close
-                >
-                  Edit
-                </f7-button>
-              </f7-col>
-            </f7-row>
+            <f7-button
+              large
+              fill
+              sheet-open=".demo-sheet-swipe-to-close"
+              @click="edit()"
+              popup-close
+            >
+              Edit
+            </f7-button>
           </f7-block>
         </f7-page-content>
       </f7-page>
@@ -236,14 +227,6 @@
               </p>
             </div>
             <div>
-              <!-- <f7-stepper
-                :min="(item.stock>=item.min)?item.min:item.stock"
-                :max="item.stock"
-                :value="(item.stock>=item.qty)?item.qty:item.stock"
-                @stepper:change="updateBag(item.sku, $event, item.stock)"
-                raised
-                large
-              ></f7-stepper> -->
               <f7-stepper
                 :min="1"
                 :value="Number(item.qty)"
@@ -251,6 +234,15 @@
                 raised
                 large
               ></f7-stepper>
+            </div>
+            <div>
+              <f7-button
+                large
+                icon-f7="trash"
+                outline
+                @click="deleteTrans(item.id)"
+              >
+              </f7-button>
             </div>
           </div>
         </template>
@@ -508,13 +500,20 @@ export default {
           this.$f7.preloader.hide();
         });
     },
-    deleteTrans() {
+    deleteTrans(id) {
       this.$f7.preloader.show();
       this.axios
-        .get(`pos/delete/${this.id}`)
+        .get(`pos/delete/${id}`)
         .then((res) => {
-          this.bag = res.data.content;
-          this.editSheet = true;
+          this.$f7.toast
+            .create({
+              text: res.data.content,
+              position: "bottom",
+              closeTimeout: 2000,
+              destroyOnClose: true,
+            })
+            .open();
+          this.editSheet = false;
           this.$f7.preloader.hide();
         })
         .catch((err) => {
@@ -532,7 +531,6 @@ export default {
     },
     updateQty(id, val) {
       this.$f7.preloader.show();
-
       this.axios
         .get(`pos/update/${id}/${val}`)
         .then((res) => {
