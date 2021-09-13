@@ -33,7 +33,7 @@
           </f7-input>
           <br />
 
-          <div v-if="filter.type == 3">
+          <div v-if="filter.type == 2">
             <p>Start</p>
             <f7-input
               type="datepicker"
@@ -200,7 +200,7 @@ export default {
             if (res.result) {
               res.result.map((el) => {
                 items += `<tr>
-                <td>${el.date}</td>
+                <td>${this.moment(new Date(el.date)).format("DD MMM YYYY HH:mm")}</td>
                 <td class="qty">${el.payment}</td>
                     <td class="price">${this.numeric(el.amount)}</td>
                 </tr>  `;
