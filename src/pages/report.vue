@@ -189,6 +189,7 @@ export default {
         .then((response) => {
           this.popupOpened = true;
           this.showPreloader = false;
+          let qtyTotal = 0;
           let res = response.data.content;
           var items;
           if (this.reportType == "summary") {
@@ -200,7 +201,9 @@ export default {
             if (res.result) {
               res.result.map((el) => {
                 items += `<tr>
-                <td>${this.moment(new Date(el.date)).format("DD MMM YYYY HH:mm")}</td>
+                <td>${this.moment(new Date(el.date)).format(
+                  "DD MMM YYYY HH:mm"
+                )}</td>
                 <td class="qty">${el.payment}</td>
                     <td class="price">${this.numeric(el.amount)}</td>
                 </tr>  `;
@@ -218,6 +221,7 @@ export default {
             </tr>`;
             if (res.result) {
               res.result.map((el) => {
+                qtyTotal += Number(el.qty)
                 items += `<tr>
                 <td> ${el.product} </td>
                 <td class="qty">${el.qty}</td>
@@ -226,7 +230,8 @@ export default {
               });
             }
             items += ` <tr>
-            <td colspan="2"><b>Total </b></td>
+            <td ><b>Total </b></td>
+            <td >${qtyTotal} items</td>
             <td class="price">Rp <b> ${this.numeric(res.total_amount)}</b></td>
             </tr>`;
           }
