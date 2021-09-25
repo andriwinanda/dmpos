@@ -6,6 +6,7 @@
         <b class="capitalized">{{ name ? name : "" }}</b
         >,
       </h3>
+      <small class="text-color-white">PIN : {{log}}</small>
     </f7-block>
     <f7-card class="bg-color-white" >
       <f7-card-content>
@@ -193,6 +194,8 @@ export default {
       dark: (state) => state.login.darkMode,
       name: (state) =>
         state.login.dataUser ? state.login.dataUser.username : "",
+      log: (state) =>
+        state.login.dataUser ? state.login.dataUser.log : "",
     }),
   },
   mounted() {
