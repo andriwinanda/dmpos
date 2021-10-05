@@ -53,11 +53,15 @@
     >
       <f7-block>
         <h1 class="text-color-white">
-          <b>{{$t('sales.label')}}</b>
+          <b>{{ $t("sales.label") }}</b>
         </h1>
       </f7-block>
 
-      <div class="bg-color-white hairline-bottom" v-for="item in productList" :key="item.id">
+      <div
+        class="bg-color-white hairline-bottom"
+        v-for="item in productList"
+        :key="item.id"
+      >
         <f7-link
           style="display: block"
           color="black"
@@ -303,6 +307,7 @@ export default {
       beforeAddSheet: false,
       bagSheet: false,
       paymentList: [],
+      discountList: [],
       productList: [],
       productFilter: {
         city: "",
@@ -321,6 +326,12 @@ export default {
     loadPayment() {
       this.axios.get("/payment").then((res) => {
         this.paymentList = res.data.content.result;
+      });
+    },
+    // Load Discount
+    loadDiscount() {
+      this.axios.get("/discount_type").then((res) => {
+        this.discountList = res.data.content.result;
       });
     },
     loadProduct() {
@@ -493,6 +504,48 @@ export default {
       //   console.log(result);
     },
     choosePayment(nowOrBag) {
+      let disc_code = "";
+      let disc_price = "";
+      let disc_action = [
+        {
+          text: "Available Discount",
+          label: true,
+        },
+      ];
+      this.discountList.map((el) => {
+        let buttonItem = {};
+        buttonItem.text = el.code;
+        buttonItem.onClick = () => {
+          disc_code = el.code;
+          disc_price = el.value;
+          payment.open();
+        };
+        disc_action.push(buttonItem);
+      });
+      // Set Manual Discount
+      let manual = {
+        text: "Set Manual",
+        onClick: () => {
+          this.$f7.dialog.prompt("Discount", "Any Discount ?", (e) => {
+            disc_price = e;
+            payment.open();
+          });
+        },
+      };
+      disc_action.push(manual);
+      let cancelButton = {
+        text: "Cancel",
+        color: "red",
+      };
+      disc_action.push(cancelButton);
+
+      let discount = this.$f7.actions.create({
+        buttons: disc_action,
+      });
+      // Open Discount
+      discount.open();
+
+      // Payment Action
       let action = [
         {
           text: "Choose Payment",
@@ -503,27 +556,24 @@ export default {
         let buttonItem = {};
         buttonItem.text = el.name;
         buttonItem.onClick = () => {
-          this.pay(el.id, nowOrBag);
+          this.pay(el.id, nowOrBag, disc_code, disc_price);
         };
         action.push(buttonItem);
       });
-      let cancelButton = {
-        text: "Cancel",
-        color: "red",
-      };
       action.push(cancelButton);
 
       let payment = this.$f7.actions.create({
         buttons: action,
       });
-      // Open
-      payment.open();
     },
-    pay(id, val) {
+    pay(id, val, disc_code, disc_price) {
       let data = {};
       data.orderid = "";
       data.log = this.log;
       data.payment = id;
+      data.discount_desc = disc_code;
+      data.discount = disc_price;
+
       if (val == "now") {
         data.items = [
           {
@@ -533,7 +583,7 @@ export default {
             tax: this.bagTemp.item.tax || 0,
             currency: this.bagTemp.item.currency,
             min: this.bagTemp.item.min ? this.bagTemp.item.min : 1,
-            // stock: (this.bagTemp.item.qty),
+            log: this.log,
             qty: parseInt(this.bagTemp.qty),
             price: this.bagTemp.item.price,
             totalPrice: this.bagTemp.item.price * this.bagTemp.qty,
@@ -570,7 +620,7 @@ export default {
           total += parseInt(el.qty);
         });
       }
-      return total ;
+      return total;
     },
     totalPrice() {
       let total = 0;
@@ -586,6 +636,7 @@ export default {
     this.productList = [];
     this.loadProduct();
     this.loadPayment();
+    this.loadDiscount();
   },
 };
 </script>
