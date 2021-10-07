@@ -139,6 +139,9 @@ body {
   background-position: top center;
   background-size: contain;
 }
+.no-bg{
+  background: none;
+}
 .login-screen-content {
   background: none !important;
 }

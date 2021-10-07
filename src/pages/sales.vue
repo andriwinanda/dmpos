@@ -95,7 +95,7 @@
     </f7-page>
     <f7-fab
       position="center-bottom"
-      @click="popupOpened = true"
+      @click="popupScan = true"
       slot="fixed"
       text="Scan"
     >
@@ -105,20 +105,107 @@
     <f7-popup
       :tablet-fullscreen="true"
       class="demo-popup"
-      :opened="popupOpened"
-      @popup:closed="popupOpened = false"
+      :opened="popupScan"
+      @popup:closed="popupScan = false"
     >
       <scanproduct
         @barcode="barcodeScanned($event)"
-        v-if="popupOpened"
+        v-if="popupScan"
       ></scanproduct>
     </f7-popup>
+
+    <!-- Payment -->
+    <f7-popup
+      tablet-fullscreen
+      :opened="popupPayment"
+      push
+      @popup:closed="popupPayment = false"
+    >
+      <f7-page class="no-bg">
+        <f7-navbar title="Payment">
+          <f7-nav-right>
+            <f7-link popup-close icon-f7="xmark"></f7-link>
+          </f7-nav-right>
+        </f7-navbar>
+        <f7-block-title class="no-margin-bottom">Order Summary</f7-block-title>
+        <f7-list no-hairlines accordion-list class="no-margin-bottom">
+          <f7-list-item accordion-item title="Order item">
+            <f7-block>
+              <f7-accordion-content>
+                <div
+                  v-for="item in bag"
+                  :key="item.sku"
+                  class="
+                    display-flex
+                    justify-content-space-between
+                    align-items-center
+                    padding-vertical
+                    hairline-bottom
+                  "
+                >
+                  <div>
+                    <b style="font-size: 16px" class="capitalized">{{
+                      item.name || ""
+                    }}</b>
+                    x{{ item.qty }}
+                    <p>Rp <numeric :value="item.price" /></p>
+                  </div>
+                  <div>
+                    <p>Rp <numeric :value="item.price * item.qty" /></p>
+                    <!-- <f7-stepper
+                :min="(item.stock>=item.min)?item.min:item.stock"
+                :max="item.stock"
+                :value="(item.stock>=item.qty)?item.qty:item.stock"
+                @stepper:change="updateBag(item.sku, $event, item.stock)"
+                raised
+                large
+              ></f7-stepper> -->
+                  </div>
+                </div>
+              </f7-accordion-content>
+            </f7-block>
+          </f7-list-item>
+        </f7-list>
+        <f7-block class="no-margin-top">
+          <div class="display-flex justify-content-space-between">
+            <div>
+              <span>Sub Total</span>
+            </div>
+            <div>
+              <p>Rp <numeric :value="0" /></p>
+            </div>
+          </div>
+          <div class="display-flex justify-content-space-between">
+            <div>
+              <span>Discount</span>
+            </div>
+            <div>
+              <p>Rp <numeric :value="0" /></p>
+            </div>
+          </div>
+          <div class="display-flex justify-content-space-between">
+            <div>
+              <span><b>Total</b></span>
+            </div>
+            <div>
+              <p>
+                Rp <b><numeric :value="0" /></b>
+              </p>
+            </div>
+          </div>
+        </f7-block>
+        <f7-block-title>Promo</f7-block-title>
+        <f7-block>
+          <p>nknsd</p>
+        </f7-block>
+      </f7-page>
+    </f7-popup>
+
     <!-- Add To Bag -->
     <f7-sheet
       :opened="beforeAddSheet"
       @sheet:closed="
         beforeAddSheet = false;
-
         bagTemp.item = null;
         bagTemp.qty = 0;
       "
@@ -203,7 +290,6 @@
     <f7-sheet
       :opened="bagSheet"
       @sheet:closed="bagSheet = false"
-      @sheet:open="checkStock()"
       class="demo-sheet-swipe-to-step"
       style="height: auto; --f7-sheet-bg-color: #fff"
       swipe-to-close
@@ -242,28 +328,28 @@
         </div>
         <!-- Rest of the sheet content that will opened with swipe -->
         <f7-block-title medium class="margin-top">Your order:</f7-block-title>
-        <template>
-          <div
-            v-for="item in bag"
-            :key="item.sku"
-            class="
-              display-flex
-              padding
-              justify-content-space-between
-              align-items-center
-            "
-          >
-            <div>
-              <b style="font-size: 16px" class="capitalized">{{
-                item.name || ""
-              }}</b>
-              <p>
-                {{ item.currency }}
-                <numeric :value="item.price" />
-              </p>
-            </div>
-            <div>
-              <!-- <f7-stepper
+
+        <div
+          v-for="item in bag"
+          :key="item.sku"
+          class="
+            display-flex
+            padding
+            justify-content-space-between
+            align-items-center
+          "
+        >
+          <div>
+            <b style="font-size: 16px" class="capitalized">{{
+              item.name || ""
+            }}</b>
+            <p>
+              {{ item.currency }}
+              <numeric :value="item.price" />
+            </p>
+          </div>
+          <div>
+            <!-- <f7-stepper
                 :min="(item.stock>=item.min)?item.min:item.stock"
                 :max="item.stock"
                 :value="(item.stock>=item.qty)?item.qty:item.stock"
@@ -271,16 +357,15 @@
                 raised
                 large
               ></f7-stepper> -->
-              <f7-stepper
-                :min="1"
-                :value="item.qty"
-                @stepper:change="updateBag(item.sku, $event, item.stock)"
-                raised
-                large
-              ></f7-stepper>
-            </div>
+            <f7-stepper
+              :min="1"
+              :value="item.qty"
+              @stepper:change="updateBag(item.sku, $event, item.stock)"
+              raised
+              large
+            ></f7-stepper>
           </div>
-        </template>
+        </div>
       </div>
     </f7-sheet>
   </div>
@@ -305,6 +390,7 @@ export default {
       productOffset: 0,
       productRecord: 0,
       beforeAddSheet: false,
+      popupPayment: false,
       bagSheet: false,
       paymentList: [],
       discountList: [],
@@ -317,7 +403,7 @@ export default {
         item: null,
         qty: 0,
       },
-      popupOpened: false,
+      popupScan: false,
       dataBind: {},
     };
   },
@@ -504,67 +590,68 @@ export default {
       //   console.log(result);
     },
     choosePayment(nowOrBag) {
-      let disc_code = "";
-      let disc_price = "";
-      let disc_action = [
-        {
-          text: "Available Discount",
-          label: true,
-        },
-      ];
-      this.discountList.map((el) => {
-        let buttonItem = {};
-        buttonItem.text = el.code;
-        buttonItem.onClick = () => {
-          disc_code = el.code;
-          disc_price = el.value;
-          payment.open();
-        };
-        disc_action.push(buttonItem);
-      });
-      // Set Manual Discount
-      let manual = {
-        text: "Set Manual",
-        onClick: () => {
-          this.$f7.dialog.prompt("Discount", "Any Discount ?", (e) => {
-            disc_price = e;
-            payment.open();
-          });
-        },
-      };
-      disc_action.push(manual);
-      let cancelButton = {
-        text: "Cancel",
-        color: "red",
-      };
-      disc_action.push(cancelButton);
+      this.popupPayment = true;
+      // let disc_code = "";
+      // let disc_price = "";
+      // let disc_action = [
+      //   {
+      //     text: "Available Discount",
+      //     label: true,
+      //   },
+      // ];
+      // this.discountList.map((el) => {
+      //   let buttonItem = {};
+      //   buttonItem.text = el.code;
+      //   buttonItem.onClick = () => {
+      //     disc_code = el.code;
+      //     disc_price = el.value;
+      //     payment.open();
+      //   };
+      //   disc_action.push(buttonItem);
+      // });
+      // // Set Manual Discount
+      // let manual = {
+      //   text: "Set Manual",
+      //   onClick: () => {
+      //     this.$f7.dialog.prompt("Discount", "Any Discount ?", (e) => {
+      //       disc_price = e;
+      //       payment.open();
+      //     });
+      //   },
+      // };
+      // disc_action.push(manual);
+      // let cancelButton = {
+      //   text: "Cancel",
+      //   color: "red",
+      // };
+      // disc_action.push(cancelButton);
 
-      let discount = this.$f7.actions.create({
-        buttons: disc_action,
-      });
-      // Open Discount
-      discount.open();
+      // let discount = this.$f7.actions.create({
+      //   buttons: disc_action,
+      // });
+      // // Open Discount
+      // discount.open();
 
-      // Payment Action
-      let action = [
-        {
-          text: "Choose Payment",
-          label: true,
-        },
-      ];
-      this.paymentList.map((el) => {
-        let buttonItem = {};
-        buttonItem.text = el.name;
-        buttonItem.onClick = () => {
-          this.pay(el.id, nowOrBag, disc_code, disc_price);
-        };
-        action.push(buttonItem);
-      });
-      action.push(cancelButton);
+      // // Payment Action
+      // let action = [
+      //   {
+      //     text: "Choose Payment",
+      //     label: true,
+      //   },
+      // ];
+      // this.paymentList.map((el) => {
+      //   let buttonItem = {};
+      //   buttonItem.text = el.name;
+      //   buttonItem.onClick = () => {
+      //     this.pay(el.id, nowOrBag, disc_code, disc_price);
+      //   };
+      //   action.push(buttonItem);
+      // });
+      // action.push(cancelButton);
 
-      let payment = this.$f7.actions.create({
-        buttons: action,
-      });
+      // let payment = this.$f7.actions.create({
+      //   buttons: action,
+      // });
     },
     pay(id, val, disc_code, disc_price) {
       let data = {};
