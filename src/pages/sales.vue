@@ -121,7 +121,16 @@
         <f7-toolbar class="padding" bottom>
           <f7-block style="width: 100%">
             <f7-button fill color="primary" @click="pay()">
-              Pay IDR <numeric :value="subTotal - (subTotal * dataToPay.discount)" />
+              Pay IDR
+              <numeric
+                :value="
+                  manualDiscount.selected
+                    ? manualDiscount.selected == 'Rp'
+                      ? subTotal - manualDiscount.directDisc
+                      : subTotal - subTotal * dataToPay.discount
+                    : subTotal - subTotal * dataToPay.discount
+                "
+              />
             </f7-button>
           </f7-block>
         </f7-toolbar>
@@ -206,7 +215,14 @@
               <p>
                 Rp
                 <b
-                  ><numeric :value="subTotal - (subTotal * dataToPay.discount)"
+                  ><numeric
+                    :value="
+                      manualDiscount.selected
+                        ? manualDiscount.selected == 'Rp'
+                          ? subTotal - manualDiscount.directDisc
+                          : subTotal - subTotal * dataToPay.discount
+                        : subTotal - subTotal * dataToPay.discount
+                    "
                 /></b>
               </p>
             </div>
@@ -233,9 +249,7 @@
               <f7-list-item link @click="selectVoucher()"
                 >{{
                   dataToPay.discount
-                    ? `${dataToPay.discount_desc} Discount${
-                        dataToPay.discount * 100
-                      }%`
+                    ? `${dataToPay.discount_desc}`
                     : "Select Voucher"
                 }}
               </f7-list-item>
@@ -682,7 +696,7 @@ export default {
       //   console.log(result);
     },
     paymentPage(nowOrBag) {
-      this.payNow = nowOrBag
+      this.payNow = nowOrBag;
       if (nowOrBag == "now") {
         this.dataToPay.items = [
           {
@@ -779,9 +793,10 @@ export default {
       else this.manualDiscount.directDisc = val;
     },
     pay() {
-      if(this.dataToPay.payment){
-        if (this.manualDiscount.selected == "%") this.dataToPay.discount = this.manualDiscount.directDisc
-        this.dataToPay.log = this.log
+      if (this.dataToPay.payment) {
+        if (this.manualDiscount.selected == "%")
+          this.dataToPay.discount = this.manualDiscount.directDisc;
+        this.dataToPay.log = this.log;
         this.$f7.dialog.preloader();
         this.axios
           .post("/pos/add_multiple", this.dataToPay)
@@ -791,19 +806,19 @@ export default {
             this.$f7.dialog.alert("Payment success", "Success");
             this.beforeAddSheet = false;
             this.bagSheet = false;
-            this.closePaymentPage()
+            this.closePaymentPage();
           })
           .catch((err) => {
             this.$f7.dialog.close();
             this.$f7.dialog.alert(err.response.data.error, "Error");
           });
       } else {
-            this.$f7.dialog.alert("Select payment method", "Error");
+        this.$f7.dialog.alert("Select payment method", "Error");
       }
     },
     closePaymentPage() {
       this.popupPayment = false;
-      this.payNow = ""
+      this.payNow = "";
       this.selectedPayment = {};
       this.dataToPay = {
         items: [],
