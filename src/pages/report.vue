@@ -210,6 +210,10 @@ export default {
               });
             }
             items += ` <tr>
+            <td colspan="2">Discount </td>
+            <td class="price">Rp  ${this.numeric(res.total_discount)}</td>
+            </tr>`;
+            items += ` <tr>
             <td colspan="2"><b>Total </b></td>
             <td class="price">Rp <b> ${this.numeric(res.total_amount)}</b></td>
             </tr>`;
