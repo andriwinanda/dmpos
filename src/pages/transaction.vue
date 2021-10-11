@@ -395,7 +395,7 @@ export default {
               
               <tr>
               <td colspan="3"> Discount </td>
-              <td class="price">  ${this.numeric(data.discount)}</td>
+              <td class="price">  ${data.discount? "-":""}${this.numeric(data.discount)}</td>
             </tr>
               
               <tr>

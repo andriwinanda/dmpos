@@ -506,7 +506,7 @@ export default {
       },
       manualDiscount: {
         type: ["%", "Rp"],
-        selected: "",
+        selected: "%",
         directDisc: 0,
       },
     };
@@ -794,9 +794,10 @@ export default {
     },
     pay() {
       if (this.dataToPay.payment) {
-        if (this.manualDiscount.selected == "%")
+        if (this.manualDiscount.selected == "Rp")
           this.dataToPay.discount = this.manualDiscount.directDisc;
         this.dataToPay.log = this.log;
+        console.log(this.dataToPay)
         this.$f7.dialog.preloader();
         this.axios
           .post("/pos/add_multiple", this.dataToPay)
