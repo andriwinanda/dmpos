@@ -176,7 +176,6 @@ body {
   border-radius: 50px;
 }
 .toolbar-inner {
-  border-radius: 50px;
   background-color: #ffffff;
 }
 .toolbar-bottom.toolbar-hidden,

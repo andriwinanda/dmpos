@@ -33,16 +33,6 @@
       <!-- <f7-subnavbar :inner="false">
       </f7-subnavbar>-->
     </f7-navbar>
-    <!-- <f7-appbar no-hairline>
-      <div class="left">
-        <f7-button  back small  class="display-flex" icon-f7="chevron_left"></f7-button>
- 
-        <f7-searchbar inline custom-search :disable-button="false"></f7-searchbar>
-      </div>
-      <div class="right">
-        <f7-button small class="display-flex margin-left-half" icon-f7="barcode_viewfinder">Scan</f7-button>
-      </div>
-    </f7-appbar>-->
 
     <f7-page
       infinite
@@ -119,7 +109,7 @@
       tablet-fullscreen
       :opened="popupPayment"
       push
-      @popup:closed="popupPayment = false"
+      @popup:closed="closePaymentPage()"
     >
       <f7-page class="no-bg">
         <f7-navbar title="Payment">
@@ -127,13 +117,36 @@
             <f7-link popup-close icon-f7="xmark"></f7-link>
           </f7-nav-right>
         </f7-navbar>
-        <f7-block-title class="no-margin-bottom">Order Summary</f7-block-title>
+
+        <f7-toolbar class="padding" bottom>
+          <f7-block style="width: 100%">
+            <f7-button fill color="primary" @click="pay()">
+              Pay IDR
+              <numeric
+                :value="
+                  manualDiscount.selected
+                    ? manualDiscount.selected == 'Rp'
+                      ? subTotal - manualDiscount.directDisc
+                      : subTotal - subTotal * dataToPay.discount
+                    : subTotal - subTotal * dataToPay.discount
+                "
+              />
+            </f7-button>
+          </f7-block>
+        </f7-toolbar>
+        <f7-block-header class="no-margin-bottom"
+          >Order Summary</f7-block-header
+        >
         <f7-list no-hairlines accordion-list class="no-margin-bottom">
-          <f7-list-item accordion-item title="Order item">
+          <f7-list-item
+            class="no-padding-bottom"
+            accordion-item
+            :title="`Order Item${dataToPay.items.length > 1 ? 's' : ''}`"
+          >
             <f7-block>
               <f7-accordion-content>
                 <div
-                  v-for="item in bag"
+                  v-for="item in dataToPay.items"
                   :key="item.sku"
                   class="
                     display-flex
@@ -166,21 +179,32 @@
             </f7-block>
           </f7-list-item>
         </f7-list>
-        <f7-block class="no-margin-top">
+        <f7-block class="margin-top">
           <div class="display-flex justify-content-space-between">
             <div>
               <span>Sub Total</span>
             </div>
             <div>
-              <p>Rp <numeric :value="0" /></p>
+              <p>Rp <numeric :value="subTotal" /></p>
             </div>
           </div>
           <div class="display-flex justify-content-space-between">
             <div>
-              <span>Discount</span>
+              <span> Discount </span>
             </div>
             <div>
-              <p>Rp <numeric :value="0" /></p>
+              <p>
+                Rp
+                <numeric
+                  :value="
+                    manualDiscount.selected
+                      ? manualDiscount.selected == 'Rp'
+                        ? manualDiscount.directDisc
+                        : subTotal * dataToPay.discount
+                      : subTotal * dataToPay.discount
+                  "
+                />
+              </p>
             </div>
           </div>
           <div class="display-flex justify-content-space-between">
@@ -189,15 +213,73 @@
             </div>
             <div>
               <p>
-                Rp <b><numeric :value="0" /></b>
+                Rp
+                <b
+                  ><numeric
+                    :value="
+                      manualDiscount.selected
+                        ? manualDiscount.selected == 'Rp'
+                          ? subTotal - manualDiscount.directDisc
+                          : subTotal - subTotal * dataToPay.discount
+                        : subTotal - subTotal * dataToPay.discount
+                    "
+                /></b>
               </p>
             </div>
           </div>
         </f7-block>
-        <f7-block-title>Promo</f7-block-title>
-        <f7-block>
-          <p>nknsd</p>
+
+        <!-- Payment -->
+        <f7-block-header>Payment Method</f7-block-header>
+        <f7-card>
+          <f7-card-content>
+            <f7-list>
+              <f7-list-item link @click="selectPayment()"
+                >{{ selectedPayment.name || "Select Payment Method" }}
+              </f7-list-item>
+            </f7-list>
+          </f7-card-content>
+        </f7-card>
+
+        <!-- Discount -->
+        <f7-block-header>Discount Voucher</f7-block-header>
+        <f7-card>
+          <f7-card-content>
+            <f7-list>
+              <f7-list-item link @click="selectVoucher()"
+                >{{
+                  dataToPay.discount
+                    ? `${dataToPay.discount_desc}`
+                    : "Select Voucher"
+                }}
+              </f7-list-item>
+            </f7-list>
+          </f7-card-content>
+        </f7-card>
+
+        <f7-block class="no-margin-bottom">
+          <f7-block-header>Create Custom Discount</f7-block-header>
+          <f7-segmented strong>
+            <f7-button
+              v-for="i in manualDiscount.type"
+              :key="i"
+              @click="selectDiscType(i)"
+              :active="i == manualDiscount.selected"
+            >
+              {{ i }}
+            </f7-button>
+          </f7-segmented>
         </f7-block>
+        <f7-list no-hairlines class="no-margin">
+          <f7-list-input
+            outline
+            type="number"
+            placeholder="Value"
+            class="no-padding"
+            @input="customDiscount($event.target.value)"
+          >
+          </f7-list-input>
+        </f7-list>
       </f7-page>
     </f7-popup>
 
@@ -272,7 +354,7 @@
           <f7-row>
             <f7-col>
               <!-- <f7-button large outline :disabled="!bagTemp.item.qty">Checkout</f7-button> -->
-              <f7-button large outline @click="choosePayment('now')"
+              <f7-button large outline @click="paymentPage('now')"
                 >Checkout</f7-button
               >
             </f7-col>
@@ -318,7 +400,7 @@
             </div>
           </div>
           <div class="padding-horizontal padding-bottom">
-            <f7-button large fill @click="choosePayment('bag')"
+            <f7-button large fill @click="paymentPage('bag')"
               >Make Payment</f7-button
             >
             <div class="margin-top text-align-center">
@@ -327,7 +409,7 @@
           </div>
         </div>
         <!-- Rest of the sheet content that will opened with swipe -->
-        <f7-block-title medium class="margin-top">Your order:</f7-block-title>
+        <f7-block-header medium class="margin-top">Your order:</f7-block-header>
 
         <div
           v-for="item in bag"
@@ -366,6 +448,14 @@
             ></f7-stepper>
           </div>
         </div>
+        <!-- <f7-stepper
+              :min="(bagTemp.item.qty>=bagTemp.item.min)?parseInt(bagTemp.item.min):parseInt(bagTemp.item.qty)"
+              :max="bagTemp.item.qty"
+              :value="(bagTemp.item.qty>=bagTemp.qty)?bagTemp.qty:bagTemp.item.qty"
+              @stepper:change="bagTemp.qty = $event"
+              raised
+              large
+            ></f7-stepper> -->
       </div>
     </f7-sheet>
   </div>
@@ -389,8 +479,8 @@ export default {
       showPreloader: true,
       productOffset: 0,
       productRecord: 0,
-      beforeAddSheet: false,
       popupPayment: false,
+      beforeAddSheet: false,
       bagSheet: false,
       paymentList: [],
       discountList: [],
@@ -404,7 +494,21 @@ export default {
         qty: 0,
       },
       popupScan: false,
-      dataBind: {},
+      payNow: "",
+      selectedPayment: {},
+      dataToPay: {
+        items: [],
+        orderid: "",
+        log: "",
+        payment: "",
+        discount_desc: "",
+        discount: 0,
+      },
+      manualDiscount: {
+        type: ["%", "Rp"],
+        selected: "",
+        directDisc: 0,
+      },
     };
   },
   methods: {
@@ -443,6 +547,7 @@ export default {
           } else this.productList = [];
           this.productRecord = data.record;
           this.showPreloader = false;
+          data;
         })
         .catch((err) => {
           this.showPreloader = false;
@@ -488,6 +593,7 @@ export default {
               totalPrice: this.bag[index].price * this.bag[index].qty,
             };
             this.bagTemp.qty = this.bag[index].qty;
+            padding;
           } else {
             this.bagTemp.item = product;
             let priceSplit = product.price.replace(/\s/g, "").split("-");
@@ -589,80 +695,10 @@ export default {
       this.$f7.dialog.alert(result);
       //   console.log(result);
     },
-    choosePayment(nowOrBag) {
-      this.popupPayment = true;
-      // let disc_code = "";
-      // let disc_price = "";
-      // let disc_action = [
-      //   {
-      //     text: "Available Discount",
-      //     label: true,
-      //   },
-      // ];
-      // this.discountList.map((el) => {
-      //   let buttonItem = {};
-      //   buttonItem.text = el.code;
-      //   buttonItem.onClick = () => {
-      //     disc_code = el.code;
-      //     disc_price = el.value;
-      //     payment.open();
-      //   };
-      //   disc_action.push(buttonItem);
-      // });
-      // // Set Manual Discount
-      // let manual = {
-      //   text: "Set Manual",
-      //   onClick: () => {
-      //     this.$f7.dialog.prompt("Discount", "Any Discount ?", (e) => {
-      //       disc_price = e;
-      //       payment.open();
-      //     });
-      //   },
-      // };
-      // disc_action.push(manual);
-      // let cancelButton = {
-      //   text: "Cancel",
-      //   color: "red",
-      // };
-      // disc_action.push(cancelButton);
-
-      // let discount = this.$f7.actions.create({
-      //   buttons: disc_action,
-      // });
-      // // Open Discount
-      // discount.open();
-
-      // // Payment Action
-      // let action = [
-      //   {
-      //     text: "Choose Payment",
-      //     label: true,
-      //   },
-      // ];
-      // this.paymentList.map((el) => {
-      //   let buttonItem = {};
-      //   buttonItem.text = el.name;
-      //   buttonItem.onClick = () => {
-      //     this.pay(el.id, nowOrBag, disc_code, disc_price);
-      //   };
-      //   action.push(buttonItem);
-      // });
-      // action.push(cancelButton);
-
-      // let payment = this.$f7.actions.create({
-      //   buttons: action,
-      // });
-    },
-    pay(id, val, disc_code, disc_price) {
-      let data = {};
-      data.orderid = "";
-      data.log = this.log;
-      data.payment = id;
-      data.discount_desc = disc_code;
-      data.discount = disc_price;
-
-      if (val == "now") {
-        data.items = [
+    paymentPage(nowOrBag) {
+      this.payNow = nowOrBag;
+      if (nowOrBag == "now") {
+        this.dataToPay.items = [
           {
             id: this.bagTemp.item.id,
             sku: this.bagTemp.item.sku,
@@ -677,22 +713,126 @@ export default {
           },
         ];
       } else {
-        data.items = this.bag;
+        this.dataToPay.items = this.bag;
       }
-      this.$f7.dialog.preloader();
-      this.axios
-        .post("/pos/add_multiple", data)
-        .then((res) => {
-          if (val != "now") this.$store.commit("login/resetbag");
-          this.$f7.dialog.close();
-          this.$f7.dialog.alert("Payment success", "Success");
-          this.beforeAddSheet = false;
-          this.bagSheet = false;
-        })
-        .catch((err) => {
-          this.$f7.dialog.close();
-          this.$f7.dialog.alert(err.response.data.error, "Error");
-        });
+
+      // Close Sheet
+      this.beforeAddSheet = false;
+      this.bagSheet = false;
+
+      // Open Pop Up
+      this.popupPayment = true;
+    },
+    selectPayment() {
+      let action = [
+        {
+          text: "Payment Method",
+          label: true,
+        },
+      ];
+      this.paymentList.map((el) => {
+        let buttonItem = {};
+        buttonItem.text = el.name;
+        buttonItem.onClick = () => {
+          this.selectedPayment = el;
+          this.dataToPay.payment = el.id;
+        };
+        action.push(buttonItem);
+      });
+      let cancelButton = {
+        text: "Cancel",
+        color: "red",
+      };
+      action.push(cancelButton);
+
+      let payment = this.$f7.actions.create({
+        buttons: action,
+      });
+      payment.open();
+    },
+
+    selectVoucher() {
+      let disc_action = [
+        {
+          text: "Available Discount",
+          label: true,
+        },
+      ];
+      this.discountList.map((el) => {
+        let buttonItem = {};
+        buttonItem.text = el.code;
+        buttonItem.onClick = () => {
+          this.dataToPay.discount_desc = el.code;
+          this.dataToPay.discount = el.value;
+        };
+        disc_action.push(buttonItem);
+      });
+      let cancelButton = {
+        text: "Cancel",
+        color: "red",
+      };
+      disc_action.push(cancelButton);
+
+      let discount = this.$f7.actions.create({
+        buttons: disc_action,
+      });
+      // Open Discount
+      discount.open();
+    },
+    selectDiscType(val) {
+      this.dataToPay.discount = 0;
+      this.manualDiscount.directDisc;
+      this.manualDiscount.selected = val;
+    },
+    customDiscount(val) {
+      this.dataToPay.discount_desc = "";
+      this.dataToPay.discount = 0;
+      this.manualDiscount.directDisc = 0;
+      if (this.manualDiscount.selected == "%")
+        this.dataToPay.discount = val / 100;
+      else this.manualDiscount.directDisc = val;
+    },
+    pay() {
+      if (this.dataToPay.payment) {
+        if (this.manualDiscount.selected == "%")
+          this.dataToPay.discount = this.manualDiscount.directDisc;
+        this.dataToPay.log = this.log;
+        this.$f7.dialog.preloader();
+        this.axios
+          .post("/pos/add_multiple", this.dataToPay)
+          .then((res) => {
+            if (this.payNow != "now") this.$store.commit("login/resetbag");
+            this.$f7.dialog.close();
+            this.$f7.dialog.alert("Payment success", "Success");
+            this.beforeAddSheet = false;
+            this.bagSheet = false;
+            this.closePaymentPage();
+          })
+          .catch((err) => {
+            this.$f7.dialog.close();
+            this.$f7.dialog.alert(err.response.data.error, "Error");
+          });
+      } else {
+        this.$f7.dialog.alert("Select payment method", "Error");
+      }
+    },
+    closePaymentPage() {
+      this.popupPayment = false;
+      this.payNow = "";
+      this.selectedPayment = {};
+      this.dataToPay = {
+        items: [],
+        orderid: "",
+        log: "",
+        payment: "",
+        discount_desc: "",
+        discount: 0,
+      };
+      this.manualDiscount = {
+        type: ["%", "Rp"],
+        selected: "",
+        directDisc: 0,
+      };
     },
   },
   computed: {
@@ -713,6 +853,15 @@ export default {
       let total = 0;
       if (this.bag) {
         this.bag.map((el) => {
+          total += el.totalPrice;
+        });
+      }
+      return total;
+    },
+    subTotal() {
+      let total = 0;
+      if (this.dataToPay.items) {
+        this.dataToPay.items.map((el) => {
           total += el.totalPrice;
         });
       }
