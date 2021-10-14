@@ -210,7 +210,19 @@ export default {
               });
             }
             items += ` <tr>
-            <td colspan="2">Discount </td>
+            <td colspan="2">Subtotal </td>
+            <td class="price">Rp  ${this.numeric(res.total_bruto)}</td>
+            </tr>`;
+            if (res.discount_desc.length) {
+              res.discount_desc.map((el) => {
+                items += `<tr>
+                  <td colspan="2">Voucher ${el.code} </td>
+                  <td class="price">- Rp  ${this.numeric(el.discount_amount)}</td>
+                  </tr>`;
+              });
+            }
+            items += ` <tr>
+            <td colspan="2">Discount Total</td>
             <td class="price">- Rp  ${this.numeric(res.total_discount)}</td>
             </tr>`;
             items += ` <tr>
@@ -225,7 +237,7 @@ export default {
             </tr>`;
             if (res.result) {
               res.result.map((el) => {
-                qtyTotal += Number(el.qty)
+                qtyTotal += Number(el.qty);
                 items += `<tr>
                 <td> ${el.product} </td>
                 <td class="qty">${el.qty}</td>
