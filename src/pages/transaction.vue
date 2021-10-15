@@ -389,12 +389,12 @@ export default {
                     
           <!-------------TOTAL-------------->
             <tr>
-              <td colspan="3"> Harga Jual --1--Item(s) </td>
-              <td class="price"> ${this.numeric(data.total)}</td>
+              <td colspan="3"> Subtotal </td>
+              <td class="price"> ${this.numeric(data.tot_amt)}</td>
             </tr>
               
               <tr>
-              <td colspan="3"> Discount </td>
+              <td colspan="3"> Voucher ${data.discount_desc} </td>
               <td class="price">  ${data.discount? "-":""}${this.numeric(data.discount)}</td>
             </tr>
               
@@ -405,7 +405,7 @@ export default {
               
               <tr>
               <td colspan="3"><b> Total </b></td>
-              <td class="price"> <b> ${this.numeric(data.tot_amt)} </b> </td>
+              <td class="price"> <b> ${this.numeric(data.total)} </b> </td>
             </tr>
           <!--------------------------------->
           </table>
