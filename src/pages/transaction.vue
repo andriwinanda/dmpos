@@ -390,7 +390,7 @@ export default {
           <!-------------TOTAL-------------->
             <tr>
               <td colspan="3"> Subtotal </td>
-              <td class="price"> ${this.numeric(data.tot_amt)}</td>
+              <td class="price"> ${this.numeric(data.total)}</td>
             </tr>
               
               <tr>
@@ -405,7 +405,7 @@ export default {
               
               <tr>
               <td colspan="3"><b> Total </b></td>
-              <td class="price"> <b> ${this.numeric(data.total)} </b> </td>
+              <td class="price"> <b> ${this.numeric(data.tot_amt)} </b> </td>
             </tr>
           <!--------------------------------->
           </table>
