@@ -246,6 +246,22 @@ export default {
               });
             }
             items += ` <tr>
+            <td colspan="2">Subtotal </td>
+            <td class="price">Rp  ${this.numeric(res.total_bruto)}</td>
+            </tr>`;
+            if (res.discount_desc.length) {
+              res.discount_desc.map((el) => {
+                items += `<tr>
+                  <td colspan="2">Voucher ${el.code} </td>
+                  <td class="price">- Rp  ${this.numeric(el.discount_amount)}</td>
+                  </tr>`;
+              });
+            }
+            items += ` <tr>
+            <td colspan="2">Discount Total</td>
+            <td class="price">- Rp  ${this.numeric(res.total_discount)}</td>
+            </tr>`;
+            items += ` <tr>
             <td ><b>Total </b></td>
             <td >${qtyTotal} items</td>
             <td class="price">Rp <b> ${this.numeric(res.total_amount)}</b></td>
@@ -288,6 +304,7 @@ export default {
           <!--------------------------------->
           </table>
           `;
+
           this.report = report;
         })
         .catch((err) => {
